@@ -173,3 +173,88 @@ export type CreateApplicationInput = {
   note: string;
   proposedFee?: number;
 };
+
+export type ChatMessage = {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  body: string;
+  createdAt: string;
+};
+
+export type Conversation = {
+  id: string;
+  requirementId: string;
+  parentId: string;
+  teacherId: string;
+  applicationId: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ConversationListItem = {
+  id: string;
+  requirementId: string;
+  parentId: string;
+  teacherId: string;
+  applicationId: string | null;
+  peerName: string | null;
+  lastMessage: ChatMessage | null;
+  lastActivityAt: string;
+  createdAt: string;
+};
+
+export type MessagesPage = {
+  messages: ChatMessage[];
+  nextCursor: string | null;
+};
+
+export type CreateConversationInput =
+  | { applicationId: string }
+  | { requirementId: string; teacherId: string };
+
+export type Hire = {
+  id: string;
+  conversationId: string;
+  requirementId: string;
+  parentId: string;
+  teacherId: string;
+  createdAt: string;
+};
+
+export type HireListItem = {
+  id: string;
+  conversationId: string;
+  requirementId: string;
+  requirementTitle: string;
+  parentId: string;
+  teacherId: string;
+  peerName: string | null;
+  createdAt: string;
+};
+
+export type CreateHireInput = { conversationId: string };
+
+export type Review = {
+  id: string;
+  hireId: string;
+  parentId: string;
+  teacherId: string;
+  rating: number;
+  body: string;
+  createdAt: string;
+};
+
+export type TeacherReviewListItem = {
+  id: string;
+  rating: number;
+  body: string;
+  createdAt: string;
+  parentName: string | null;
+};
+
+export type CreateReviewInput = {
+  hireId: string;
+  rating: number;
+  body?: string;
+};
