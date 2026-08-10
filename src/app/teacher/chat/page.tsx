@@ -1,11 +1,18 @@
+"use client";
+
 import { AppHeader } from "@/components/layout/app-header";
 import { PageMain } from "@/components/layout/page-main";
 import { SectionHeader } from "@/components/layout/section-header";
 import { ChatEmptyDesktopPanel, ChatInbox } from "@/components/domain/chat-inbox";
-import { chats } from "@/lib/mock-data";
+import { Typography } from "@/components/typography";
+import { useAuth } from "@/hooks/use-auth";
+import { useConversations } from "@/hooks/use-conversations";
+import { toChatPreview } from "@/lib/api/mappers";
 
 export default function TeacherChatListPage() {
-  const teacherChats = chats.filter((chat) => chat.roleLabel === "Parent");
+  const { user } = useAuth();
+  const { items, loading, error } = useConversations();
+  const previews = items.map((item) => toChatPreview(item, "teacher"));
 
   return (
     <>
@@ -18,10 +25,20 @@ export default function TeacherChatListPage() {
         <div className="grid gap-4 lg:grid-cols-[minmax(280px,380px)_minmax(0,1fr)] lg:items-start xl:grid-cols-[400px_minmax(0,1fr)]">
           <section className="min-w-0 space-y-2">
             <SectionHeader
-              title={`Inbox (${teacherChats.length})`}
+              title={`Inbox (${loading ? "…" : previews.length})`}
               className="hidden lg:flex [&_h3]:text-sm"
             />
-            <ChatInbox chats={teacherChats} basePath="/teacher/chat" />
+            {loading ? (
+              <Typography variant="muted">Loading conversations…</Typography>
+            ) : null}
+            {error ? (
+              <Typography variant="muted" className="text-destructive">
+                {error}
+              </Typography>
+            ) : null}
+            {!loading && !error ? (
+              <ChatInbox chats={previews} basePath="/teacher/chat" />
+            ) : null}
           </section>
           <ChatEmptyDesktopPanel title="Select a parent conversation" />
         </div>

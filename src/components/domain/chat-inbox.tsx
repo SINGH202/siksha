@@ -4,11 +4,16 @@ import { MessageCircle } from "lucide-react";
 import { Typography } from "@/components/typography";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
-import type { ChatPreview } from "@/lib/mock-data";
+import type { UiChatPreview } from "@/lib/api/mappers";
 import { cn } from "@/lib/utils";
 
+type ChatInboxPreview = Pick<
+  UiChatPreview,
+  "id" | "name" | "lastMessage" | "time" | "requirementLabel" | "unread"
+>;
+
 type ChatInboxProps = {
-  chats: ChatPreview[];
+  chats: ChatInboxPreview[];
   basePath: "/parent/chat" | "/teacher/chat";
   activeId?: string;
   className?: string;
