@@ -1,56 +1,95 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { GraduationCap, Plus, Send, ShieldCheck } from "lucide-react";
-import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { Plus, Send, ShieldCheck } from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
 
 import { ChatBubble } from "@/components/domain/chat-bubble";
 import { ChatInbox } from "@/components/domain/chat-inbox";
 import { Typography } from "@/components/typography";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { chats } from "@/lib/mock-data";
+import { toastApiError } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/use-auth";
+import { useChatSocket } from "@/hooks/use-chat-socket";
+import { useConversationMessages } from "@/hooks/use-conversation-messages";
+import { useConversations } from "@/hooks/use-conversations";
+import { useHires } from "@/hooks/use-hires";
+import { ApiError } from "@/lib/api/client";
+import * as conversationsApi from "@/lib/api/conversations";
+import { formatMessageTime, toChatPreview } from "@/lib/api/mappers";
 import { cn } from "@/lib/utils";
 
-const initialMessages = [
-  {
-    id: "1",
-    variant: "outgoing" as const,
-    body: "Hello! I saw your profile for Class 10 Maths. Are you available for home tuition in Civil Lines?",
-    time: "10:42 AM",
-  },
-  {
-    id: "2",
-    variant: "incoming" as const,
-    body: "Hi Rahul, yes I am available. I have 5 years of CBSE experience and can start from Monday evening.",
-    time: "10:45 AM",
-  },
-];
+function peerInitials(name: string): string {
+  const initials = name
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+  return initials || "U";
+}
 
 export default function ParentChatThreadPage() {
   const params = useParams<{ id: string }>();
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState(initialMessages);
-  const parentChats = chats.filter((chat) => chat.roleLabel === "Teacher");
+  const conversationId = params.id;
+  const router = useRouter();
+  const { user } = useAuth();
 
-  function sendMessage(event: React.FormEvent) {
+  const { items: conversations } = useConversations();
+  const { items: hires } = useHires();
+
+  const [message, setMessage] = useState("");
+  // Starts true (assume disconnected) so we poll until the socket confirms
+  // it is connected; synced from `connected` below (mirrors the same
+  // set-state-in-effect pattern already used inside useChatSocket).
+  const [pollWhenDisconnected, setPollWhenDisconnected] = useState(true);
+
+  const { messages, loading, error, nextCursor, loadEarlier, send, mergeMessage } =
+    useConversationMessages(conversationId, { pollWhenDisconnected });
+
+  const { connected, peerTyping, notifyTyping } = useChatSocket(conversationId, {
+    enabled: Boolean(conversationId),
+    selfUserId: user?.id ?? null,
+    onMessage: mergeMessage,
+  });
+
+  useEffect(() => {
+    setPollWhenDisconnected(!connected);
+  }, [connected]);
+
+  useEffect(() => {
+    if (!conversationId) return;
+    const controller = new AbortController();
+    conversationsApi
+      .listMessages(conversationId, undefined, controller.signal)
+      .catch((err) => {
+        if (controller.signal.aborted) return;
+        if (err instanceof ApiError && (err.statusCode === 403 || err.statusCode === 404)) {
+          toastApiError(err, "Conversation not found");
+          router.replace("/parent/chat");
+        }
+      });
+    return () => controller.abort();
+  }, [conversationId, router]);
+
+  const activeConversation = conversations.find((item) => item.id === conversationId);
+  const activePreview = activeConversation
+    ? toChatPreview(activeConversation, "parent")
+    : null;
+  const peerName = activePreview?.name ?? "Tutor";
+  const sidebarChats = conversations.map((item) => toChatPreview(item, "parent"));
+  const isHired = hires.some((hire) => hire.conversationId === conversationId);
+
+  function handleSend(event: FormEvent) {
     event.preventDefault();
-    if (!message.trim()) return;
-    setMessages((current) => [
-      ...current,
-      {
-        id: String(current.length + 1),
-        variant: "outgoing",
-        body: message.trim(),
-        time: "Now",
-      },
-    ]);
+    const trimmed = message.trim();
+    if (!trimmed) return;
     setMessage("");
+    void send(trimmed).catch((err) => toastApiError(err, "Could not send message"));
   }
 
   return (
@@ -61,9 +100,9 @@ export default function ParentChatThreadPage() {
         </Typography>
         <div className="min-h-0 flex-1 overflow-y-auto">
           <ChatInbox
-            chats={parentChats}
+            chats={sidebarChats}
             basePath="/parent/chat"
-            activeId={params.id}
+            activeId={conversationId}
           />
         </div>
       </aside>
@@ -83,30 +122,43 @@ export default function ParentChatThreadPage() {
           <Avatar className="size-10 md:size-11">
             <AvatarFallback
               className="bg-accent text-accent-foreground"
-              aria-label="Tutor Priya Sharma"
+              aria-label={`Tutor ${peerName}`}
             >
-              PS
+              {peerInitials(peerName)}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
             <Typography variant="h3" className="truncate text-sm tracking-tight md:text-base">
-              Priya Sharma
+              {peerName}
             </Typography>
-            <Typography variant="small" className="text-success-foreground">
-              Online · Class 10 Maths
+            <Typography
+              variant="small"
+              className={peerTyping ? "text-primary italic" : undefined}
+            >
+              {peerTyping ? "Typing…" : activePreview?.requirementLabel ?? "Tuition chat"}
             </Typography>
           </div>
-          <Link
-            href="/parent/hire/c1"
-            className={cn(
-              buttonVariants({ size: "sm" }),
-              "rounded-full px-3 md:h-9 md:px-4"
-            )}
-          >
-            <Typography variant="button" className="text-primary-foreground">
-              Hire
-            </Typography>
-          </Link>
+          {conversationId ? (
+            isHired ? (
+              <span
+                className={cn(
+                  buttonVariants({ variant: "secondary", size: "sm" }),
+                  "pointer-events-none rounded-full px-3 md:h-9 md:px-4"
+                )}
+              >
+                <Typography variant="button">Hired</Typography>
+              </span>
+            ) : (
+              <Link
+                href={`/parent/hire/${conversationId}`}
+                className={cn(buttonVariants({ size: "sm" }), "rounded-full px-3 md:h-9 md:px-4")}
+              >
+                <Typography variant="button" className="text-primary-foreground">
+                  Hire
+                </Typography>
+              </Link>
+            )
+          ) : null}
         </header>
 
         <div className="flex items-center gap-2 bg-secondary/50 px-4 py-2 text-secondary-foreground md:px-5">
@@ -117,39 +169,42 @@ export default function ParentChatThreadPage() {
         </div>
 
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 md:px-6 md:py-5">
-          <Card className="mx-auto max-w-xs items-center gap-2 p-4 text-center md:max-w-sm">
-            <GraduationCap className="size-5 text-primary" aria-hidden />
-            <Typography variant="small">
-              Conversation about requirement
-            </Typography>
-            <Badge
-              variant="secondary"
-              className="bg-warning/50 text-warning-foreground"
-            >
-              <Typography variant="small" className="text-warning-foreground">
-                Class 10 Maths
-              </Typography>
-            </Badge>
-          </Card>
+          {nextCursor ? (
+            <div className="flex justify-center">
+              <Button variant="outline" size="sm" onClick={() => void loadEarlier()}>
+                <Typography variant="button">Load earlier</Typography>
+              </Button>
+            </div>
+          ) : null}
 
-          <div className="flex items-center gap-3">
-            <Separator className="flex-1" />
-            <Typography variant="small">Today</Typography>
-            <Separator className="flex-1" />
-          </div>
+          {loading && messages.length === 0 ? (
+            <Typography variant="muted">Loading messages…</Typography>
+          ) : null}
+
+          {error ? (
+            <Typography variant="muted" className="text-destructive">
+              {error}
+            </Typography>
+          ) : null}
+
+          {!loading && !error && messages.length === 0 ? (
+            <Typography variant="muted">
+              No messages yet. Say hello to start the conversation.
+            </Typography>
+          ) : null}
 
           {messages.map((item) => (
             <ChatBubble
               key={item.id}
               body={item.body}
-              time={item.time}
-              variant={item.variant}
+              time={formatMessageTime(item.createdAt)}
+              variant={item.senderId === user?.id ? "outgoing" : "incoming"}
             />
           ))}
         </div>
 
         <form
-          onSubmit={sendMessage}
+          onSubmit={handleSend}
           className="sticky bottom-16 z-20 flex items-center gap-2 border-t border-border/50 bg-background/80 px-3 py-3 shadow-[0_-8px_24px_rgb(23_23_23/4%)] backdrop-blur-xl safe-bottom md:bottom-0 md:px-5"
         >
           <button
@@ -161,13 +216,17 @@ export default function ParentChatThreadPage() {
           </button>
           <Input
             value={message}
-            onChange={(event) => setMessage(event.target.value)}
+            onChange={(event) => {
+              setMessage(event.target.value);
+              notifyTyping();
+            }}
             placeholder="Message..."
             className="h-11 rounded-full bg-card"
           />
           <button
             type="submit"
-            className="flex size-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-soft"
+            disabled={!message.trim()}
+            className="flex size-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-soft disabled:pointer-events-none disabled:opacity-50"
             aria-label="Send message"
           >
             <Send className="size-4" />
