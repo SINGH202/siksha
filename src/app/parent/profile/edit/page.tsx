@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { FilterChip } from "@/components/domain/filter-chip";
@@ -13,51 +13,89 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useParentProfile } from "@/hooks/use-account";
-import type { ParentProfile } from "@/lib/account-defaults";
-import { CLASSES, LOCALITIES, SUBJECTS } from "@/lib/mock-data";
+import { toastApiError } from "@/hooks/use-auth";
+import { useProfile } from "@/hooks/use-profile";
+import { isParentProfileMe } from "@/lib/api/types";
+import { LOCALITIES } from "@/lib/mock-data";
+
+type ParentProfileFormProps = {
+  initialName: string;
+  initialLocality: string;
+  onSave: (input: { name: string; locality?: string }) => Promise<void>;
+};
+
+function ParentProfileForm({
+  initialName,
+  initialLocality,
+  onSave,
+}: ParentProfileFormProps) {
+  const [name, setName] = useState(initialName);
+  const [locality, setLocality] = useState(initialLocality);
+
+  async function onSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!name.trim()) {
+      toast.error("Name is required");
+      return;
+    }
+    await onSave({
+      name: name.trim(),
+      locality: locality.trim() || undefined,
+    });
+  }
+
+  return (
+    <form id="parent-profile-form" className="space-y-4" onSubmit={onSubmit}>
+      <Card className="gap-4 border-border/50 p-4 md:p-5">
+        <Typography variant="h3" className="text-base tracking-tight">
+          Your details
+        </Typography>
+        <div className="space-y-2">
+          <Label htmlFor="name">
+            <Typography variant="label">Your name</Typography>
+          </Label>
+          <Input
+            id="name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+        </div>
+        <div className="space-y-2">
+          <Typography variant="label">Locality</Typography>
+          <div className="flex flex-wrap gap-2">
+            {LOCALITIES.map((item) => (
+              <FilterChip
+                key={item}
+                label={item}
+                active={locality === item}
+                onClick={() => setLocality(item)}
+              />
+            ))}
+          </div>
+        </div>
+      </Card>
+    </form>
+  );
+}
 
 export default function EditParentProfilePage() {
   const router = useRouter();
-  const { value, save, ready } = useParentProfile();
-  const [form, setForm] = useState<ParentProfile>(value);
+  const { data, loading, saveParent } = useProfile();
+  const [submitting, setSubmitting] = useState(false);
+  const profile =
+    data && isParentProfileMe(data) ? data.profile : null;
 
-  useEffect(() => {
-    if (ready) setForm(value);
-  }, [ready, value]);
-
-  function updateField<K extends keyof ParentProfile>(
-    key: K,
-    next: ParentProfile[K]
-  ) {
-    setForm((current) => ({ ...current, [key]: next }));
-  }
-
-  function toggleSubject(subject: string) {
-    setForm((current) => ({
-      ...current,
-      preferredSubjects: current.preferredSubjects.includes(subject)
-        ? current.preferredSubjects.filter((item) => item !== subject)
-        : [...current.preferredSubjects, subject],
-    }));
-  }
-
-  function onSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    if (!form.name.trim() || form.phone.replace(/\D/g, "").length < 10) {
-      toast.error("Please add a valid name and 10-digit phone number");
-      return;
+  async function handleSave(input: { name: string; locality?: string }) {
+    setSubmitting(true);
+    try {
+      await saveParent(input);
+      toast.success("Profile updated");
+      router.push("/parent/profile");
+    } catch (error) {
+      toastApiError(error, "Could not save profile");
+    } finally {
+      setSubmitting(false);
     }
-    save({
-      ...form,
-      name: form.name.trim(),
-      phone: form.phone.replace(/\D/g, "").slice(-10),
-      studentName: form.studentName.trim(),
-      notes: form.notes.trim(),
-    });
-    toast.success("Profile updated");
-    router.push("/parent/profile");
   }
 
   return (
@@ -67,124 +105,35 @@ export default function EditParentProfilePage() {
         showBrand={false}
         backHref="/parent/profile"
         narrow
-        subtitle="Update the details teachers see when they apply to your requirements."
+        subtitle="Name and locality help teachers understand your area."
       />
       <PageMain narrow className="gap-4 pb-28 md:pb-8">
-        {!ready ? (
-          <Typography variant="muted">Loading profile...</Typography>
+        {loading ? (
+          <Typography variant="muted">Loading profile…</Typography>
         ) : (
-          <form id="parent-profile-form" className="space-y-4" onSubmit={onSubmit}>
-            <Card className="gap-4 border-border/50 p-4 md:p-5">
-              <Typography variant="h3" className="text-base tracking-tight">
-                Your details
-              </Typography>
-              <div className="space-y-2">
-                <Label htmlFor="name">
-                  <Typography variant="label">Your name</Typography>
-                </Label>
-                <Input
-                  id="name"
-                  value={form.name}
-                  onChange={(event) => updateField("name", event.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">
-                  <Typography variant="label">Mobile number</Typography>
-                </Label>
-                <Input
-                  id="phone"
-                  inputMode="numeric"
-                  value={form.phone}
-                  onChange={(event) => updateField("phone", event.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Typography variant="label">Locality</Typography>
-                <div className="flex flex-wrap gap-2">
-                  {LOCALITIES.map((item) => (
-                    <FilterChip
-                      key={item}
-                      label={item}
-                      active={form.locality === item}
-                      onClick={() => updateField("locality", item)}
-                    />
-                  ))}
-                </div>
-              </div>
-            </Card>
-
-            <Card className="gap-4 border-border/50 p-4 md:p-5">
-              <Typography variant="h3" className="text-base tracking-tight">
-                Student preferences
-              </Typography>
-              <div className="space-y-2">
-                <Label htmlFor="studentName">
-                  <Typography variant="label">Student name</Typography>
-                </Label>
-                <Input
-                  id="studentName"
-                  value={form.studentName}
-                  onChange={(event) =>
-                    updateField("studentName", event.target.value)
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Typography variant="label">Student class</Typography>
-                <div className="flex flex-wrap gap-2">
-                  {CLASSES.map((item) => (
-                    <FilterChip
-                      key={item}
-                      label={`Class ${item}`}
-                      active={form.studentClass === item}
-                      onClick={() => updateField("studentClass", item)}
-                    />
-                  ))}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Typography variant="label">Preferred subjects</Typography>
-                <div className="flex flex-wrap gap-2">
-                  {SUBJECTS.map((item) => (
-                    <FilterChip
-                      key={item}
-                      label={item}
-                      active={form.preferredSubjects.includes(item)}
-                      onClick={() => toggleSubject(item)}
-                    />
-                  ))}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="notes">
-                  <Typography variant="label">Notes for tutors</Typography>
-                </Label>
-                <Textarea
-                  id="notes"
-                  value={form.notes}
-                  onChange={(event) => updateField("notes", event.target.value)}
-                  className="min-h-24"
-                />
-              </div>
-            </Card>
-          </form>
+          <ParentProfileForm
+            key={profile?.id ?? "new-parent-profile"}
+            initialName={profile?.name ?? ""}
+            initialLocality={profile?.locality || LOCALITIES[0]}
+            onSave={handleSave}
+          />
         )}
       </PageMain>
-
-      <StickyCta narrow>
-        <Button
-          type="submit"
-          form="parent-profile-form"
-          size="lg"
-          className="w-full"
-          disabled={!ready}
-        >
-          <Typography variant="button" className="text-primary-foreground">
-            Save changes
-          </Typography>
-        </Button>
-      </StickyCta>
+      {!loading ? (
+        <StickyCta narrow>
+          <Button
+            type="submit"
+            form="parent-profile-form"
+            size="lg"
+            className="w-full"
+            disabled={submitting}
+          >
+            <Typography variant="button" className="text-primary-foreground">
+              {submitting ? "Saving…" : "Save changes"}
+            </Typography>
+          </Button>
+        </StickyCta>
+      ) : null}
     </>
   );
 }

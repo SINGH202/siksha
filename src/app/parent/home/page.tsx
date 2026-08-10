@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight, Clock3, Plus, Search } from "lucide-react";
 
@@ -11,11 +13,20 @@ import { ResponseTimePromise } from "@/components/seo/response-time-promise";
 import { Typography } from "@/components/typography";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { parentRequirements, teachers } from "@/lib/mock-data";
+import { useProfile } from "@/hooks/use-profile";
+import { useMyRequirements } from "@/hooks/use-requirements";
+import { toUiRequirement } from "@/lib/api/mappers";
+import { teachers } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
 export default function ParentHomePage() {
+  const { data } = useProfile();
+  const { items, loading } = useMyRequirements();
   const recommended = teachers.filter((teacher) => teacher.verified);
+  const displayName =
+    data?.user.role === "parent" && data.profile?.name
+      ? data.profile.name.split(" ")[0]
+      : "there";
 
   return (
     <>
@@ -25,7 +36,7 @@ export default function ParentHomePage() {
 
         <div className="space-y-1.5 md:hidden">
           <Typography variant="h2" className="tracking-tight">
-            Namaste, Rahul
+            Namaste, {displayName}
           </Typography>
           <Typography variant="muted">
             Find a trusted home tutor for Classes 8–12 in Farrukhabad.
@@ -53,10 +64,9 @@ export default function ParentHomePage() {
           </div>
           <div className="relative min-h-48 overflow-hidden bg-gradient-to-br from-accent via-secondary/50 to-warning/25 p-8">
             <div className="absolute -right-8 -top-8 size-40 rounded-full border border-primary/10 bg-card/30" />
-            <div className="absolute bottom-6 left-6 size-24 rounded-full border border-primary/10 bg-card/20" />
             <div className="relative flex h-full flex-col justify-end gap-2">
               <Typography variant="h3" className="text-primary">
-                Namaste, Rahul
+                Namaste, {displayName}
               </Typography>
               <Typography variant="muted">
                 Classes 8–12 · Home tuition
@@ -67,7 +77,6 @@ export default function ParentHomePage() {
 
         <Link href="/parent/requirements/new" className="block md:hidden">
           <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-primary to-[#0d747d] p-5 text-primary-foreground shadow-lift ring-0">
-            <div className="absolute -right-6 -top-6 size-28 rounded-full bg-white/10" />
             <div className="flex items-start gap-3 pr-10">
               <span className="flex size-11 items-center justify-center rounded-2xl bg-white/15">
                 <Plus className="size-5" />
@@ -142,15 +151,24 @@ export default function ParentHomePage() {
                 </Link>
               }
             />
-            <div className="space-y-3">
-              {parentRequirements.map((requirement) => (
-                <RequirementCard
-                  key={requirement.id}
-                  requirement={requirement}
-                  href={`/parent/requirements/${requirement.id}`}
-                />
-              ))}
-            </div>
+            {loading ? (
+              <Typography variant="muted">Loading…</Typography>
+            ) : (
+              <div className="space-y-3">
+                {items.slice(0, 5).map((requirement) => (
+                  <RequirementCard
+                    key={requirement.id}
+                    requirement={toUiRequirement(requirement)}
+                    href={`/parent/requirements/${requirement.id}`}
+                  />
+                ))}
+                {items.length === 0 ? (
+                  <Typography variant="muted">
+                    No requirements yet. Post one to get started.
+                  </Typography>
+                ) : null}
+              </div>
+            )}
             <div className="md:hidden">
               <TrustBanner />
             </div>

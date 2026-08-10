@@ -1,15 +1,24 @@
-import Link from "next/link";
+"use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import { EmptyState } from "@/components/domain/empty-state";
 import { RequirementCard } from "@/components/domain/requirement-card";
 import { AppHeader } from "@/components/layout/app-header";
 import { PageMain } from "@/components/layout/page-main";
 import { SectionHeader } from "@/components/layout/section-header";
 import { Typography } from "@/components/typography";
 import { buttonVariants } from "@/components/ui/button";
-import { parentRequirements } from "@/lib/mock-data";
+import { useMyRequirements } from "@/hooks/use-requirements";
+import { toUiRequirement } from "@/lib/api/mappers";
 import { cn } from "@/lib/utils";
+import { ClipboardList } from "lucide-react";
 
 export default function ParentRequirementsPage() {
+  const router = useRouter();
+  const { items, loading, error } = useMyRequirements();
+
   return (
     <>
       <AppHeader
@@ -36,11 +45,33 @@ export default function ParentRequirementsPage() {
             </Link>
           }
         />
+        {loading ? (
+          <Typography variant="muted">Loading requirements…</Typography>
+        ) : null}
+        {error ? (
+          <Typography variant="muted" className="text-destructive">
+            {error}
+          </Typography>
+        ) : null}
+        {!loading && !error && items.length === 0 ? (
+          <EmptyState
+            icon={ClipboardList}
+            title="No requirements yet"
+            description="Post your first Class 8–12 home tuition requirement."
+            actionLabel="Post requirement"
+            onAction={() => {
+              router.push("/parent/requirements/new");
+            }}
+          />
+        ) : null}
         <div className="grid gap-3 lg:grid-cols-2">
-          {parentRequirements.map((requirement) => (
+          {items.map((requirement) => (
             <RequirementCard
               key={requirement.id}
-              requirement={requirement}
+              requirement={toUiRequirement(
+                requirement,
+                requirement.status === "applicants" ? 1 : 0
+              )}
               href={`/parent/requirements/${requirement.id}`}
               className="h-full"
             />

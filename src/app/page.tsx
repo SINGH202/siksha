@@ -76,22 +76,22 @@ export default function LandingPage() {
 
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Link
-                  href="/login?role=parent"
+                  href="/login"
                   className={cn(buttonVariants(), "h-12 rounded-xl px-5")}
                 >
                   <Typography variant="button" className="text-primary-foreground">
-                    I am a parent
+                    Get started
                   </Typography>
                   <ArrowRight className="size-4" aria-hidden />
                 </Link>
                 <Link
-                  href="/login?role=teacher"
+                  href="/login"
                   className={cn(
                     buttonVariants({ variant: "outline" }),
                     "h-12 rounded-xl px-5"
                   )}
                 >
-                  <Typography variant="button">I am a teacher</Typography>
+                  <Typography variant="button">Sign in</Typography>
                 </Link>
               </div>
 

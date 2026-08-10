@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { Typography } from "@/components/typography";
@@ -10,18 +11,32 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toastApiError, useAuth } from "@/hooks/use-auth";
+import { isValidIndianMobile, toE164Phone } from "@/lib/auth/phone";
 
-function LoginForm() {
+export default function LoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const role = searchParams.get("role") === "teacher" ? "teacher" : "parent";
+  const { requestOtp, pending } = useAuth();
   const [phone, setPhone] = useState("");
 
-  function continueToOtp(event: React.FormEvent) {
+  async function continueToOtp(event: React.FormEvent) {
     event.preventDefault();
-    const digits = phone.replace(/\D/g, "").slice(-10);
-    if (digits.length < 10) return;
-    router.push(`/otp?role=${role}&phone=${digits}`);
+    if (!isValidIndianMobile(phone)) {
+      toast.error("Enter a valid 10-digit Indian mobile number starting with 6–9");
+      return;
+    }
+    try {
+      const result = await requestOtp(phone);
+      const e164 = toE164Phone(phone)!;
+      if (result.devCode) {
+        toast.message(`Dev OTP: ${result.devCode}`);
+      } else {
+        toast.success("OTP sent");
+      }
+      router.push(`/otp?phone=${encodeURIComponent(e164)}`);
+    } catch (error) {
+      toastApiError(error, "Could not send OTP");
+    }
   }
 
   return (
@@ -33,9 +48,7 @@ function LoginForm() {
               Siksha
             </Typography>
             <Typography variant="muted">
-              {role === "parent"
-                ? "Sign in to find tutors for your child"
-                : "Sign in to receive local tuition leads"}
+              Sign in with your mobile number to continue
             </Typography>
           </div>
 
@@ -62,32 +75,29 @@ function LoginForm() {
               </div>
             </div>
 
-            <Button type="submit" size="lg" className="w-full text-base">
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full text-base"
+              disabled={pending}
+            >
               <Typography variant="button" className="text-primary-foreground">
-                Send OTP
+                {pending ? "Sending…" : "Send OTP"}
               </Typography>
             </Button>
           </form>
 
           <Typography variant="small" className="text-center">
-            Continuing as {role}.{" "}
+            New here?{" "}
             <Link
-              href="/role"
+              href="/"
               className="text-primary underline-offset-4 hover:underline"
             >
-              Change role
+              Learn about Siksha
             </Link>
           </Typography>
         </Card>
       </div>
     </AppShell>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense>
-      <LoginForm />
-    </Suspense>
   );
 }

@@ -36,8 +36,11 @@ function usePersistentState<T>(key: string, fallback: T) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    setValue(readJson(key, fallback));
-    setReady(true);
+    const timer = window.setTimeout(() => {
+      setValue(readJson(key, fallback));
+      setReady(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- load once per key
   }, [key]);
 

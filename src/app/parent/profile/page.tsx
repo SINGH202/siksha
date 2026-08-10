@@ -17,19 +17,29 @@ import { PageMain } from "@/components/layout/page-main";
 import { SectionHeader } from "@/components/layout/section-header";
 import { Typography } from "@/components/typography";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { initialsFromName, useParentProfile } from "@/hooks/use-account";
+import { initialsFromName } from "@/hooks/use-account";
+import { useAuth } from "@/hooks/use-auth";
+import { useProfile } from "@/hooks/use-profile";
+import { isParentProfileMe } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
 export default function ParentProfilePage() {
-  const { value: profile, ready } = useParentProfile();
+  const { data, loading } = useProfile();
+  const { user, logout } = useAuth();
+  const profile =
+    data && isParentProfileMe(data) ? data.profile : null;
+  const ready = !loading;
+  const displayName = profile?.name || "Parent";
+  const locality = profile?.locality || "Add locality";
+  const phone = user?.phone?.replace(/^\+91/, "") ?? "—";
 
   const quickLinks = [
     {
       href: "/parent/profile/edit",
       title: "Edit details",
-      detail: "Name, locality, student info, subjects",
+      detail: "Name and locality",
       icon: Pencil,
     },
     {
@@ -62,14 +72,14 @@ export default function ParentProfilePage() {
               <Avatar className="size-20 md:size-24">
                 <AvatarFallback
                   className="bg-accent text-lg text-accent-foreground md:text-xl"
-                  aria-label={`Profile photo placeholder for ${profile.name}`}
+                  aria-label={`Profile photo placeholder for ${displayName}`}
                 >
-                  {ready ? initialsFromName(profile.name) : "…"}
+                  {ready ? initialsFromName(displayName) : "…"}
                 </AvatarFallback>
               </Avatar>
               <div className="space-y-1">
                 <Typography variant="h2" className="text-xl tracking-tight md:text-2xl">
-                  {ready ? profile.name : "Loading…"}
+                  {ready ? displayName : "Loading…"}
                 </Typography>
                 <Typography variant="muted">Parent account</Typography>
               </div>
@@ -78,24 +88,15 @@ export default function ParentProfilePage() {
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="size-4 shrink-0" aria-hidden />
                 <Typography variant="bodySmall">
-                  Farrukhabad · {profile.locality}
+                  Farrukhabad · {locality}
                 </Typography>
               </div>
               <Typography variant="bodySmall" className="font-medium">
-                +91 {profile.phone}
+                +91 {phone}
               </Typography>
-              <Typography variant="small">
-                Student: {profile.studentName || "—"} · Class{" "}
-                {profile.studentClass}
-              </Typography>
-              {profile.preferredSubjects.length > 0 ? (
-                <Typography variant="small">
-                  Subjects: {profile.preferredSubjects.join(", ")}
-                </Typography>
-              ) : null}
-              {profile.notes ? (
-                <Typography variant="muted" className="text-sm">
-                  {profile.notes}
+              {data && isParentProfileMe(data) && !data.isComplete ? (
+                <Typography variant="small" className="text-amber-700">
+                  Finish your profile so tutors can match you better.
                 </Typography>
               ) : null}
             </div>
@@ -108,16 +109,15 @@ export default function ParentProfilePage() {
                 Edit details
               </Typography>
             </Link>
-            <Link
-              href="/role"
-              className={cn(
-                buttonVariants({ variant: "outline" }),
-                "h-11 w-full rounded-xl"
-              )}
+            <Button
+              type="button"
+              variant="outline"
+              className="h-11 w-full rounded-xl"
+              onClick={() => logout()}
             >
               <LogOut className="size-4" aria-hidden />
-              <Typography variant="button">Switch role / sign out</Typography>
-            </Link>
+              <Typography variant="button">Sign out</Typography>
+            </Button>
           </Card>
 
           <div className="space-y-4">

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { FilterChip } from "@/components/domain/filter-chip";
 import { StickyCta } from "@/components/domain/sticky-cta";
@@ -10,19 +11,29 @@ import { PageMain } from "@/components/layout/page-main";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { toastApiError } from "@/hooks/use-auth";
+import { useMyRequirements } from "@/hooks/use-requirements";
+import type { ClassLabel, RequirementMode } from "@/lib/api/types";
 import { CLASSES, LOCALITIES, SUBJECTS } from "@/lib/mock-data";
 
 const steps = ["Academics", "Location", "Details"] as const;
 
 export default function NewRequirementPage() {
   const router = useRouter();
+  const { create } = useMyRequirements();
   const [step, setStep] = useState(0);
-  const [selectedClass, setSelectedClass] = useState("10");
+  const [title, setTitle] = useState("");
+  const [selectedClass, setSelectedClass] = useState<ClassLabel>("10");
   const [subjects, setSubjects] = useState<string[]>(["Mathematics"]);
+  const [board, setBoard] = useState("CBSE");
   const [locality, setLocality] = useState<string>(LOCALITIES[0]);
+  const [mode, setMode] = useState<RequirementMode>("home");
+  const [schedule, setSchedule] = useState("Weekday evenings");
   const [note, setNote] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   function toggleSubject(subject: string) {
     setSubjects((current) =>
@@ -32,17 +43,45 @@ export default function NewRequirementPage() {
     );
   }
 
-  function next() {
+  async function next() {
+    if (step === 0 && subjects.length === 0) {
+      toast.error("Select at least one subject");
+      return;
+    }
     if (step < steps.length - 1) {
       setStep((value) => value + 1);
       return;
     }
-    router.push("/thank-you");
+
+    const resolvedTitle =
+      title.trim() ||
+      `${subjects.slice(0, 2).join(" & ")} tutor for Class ${selectedClass}`;
+
+    setSubmitting(true);
+    try {
+      await create({
+        title: resolvedTitle,
+        classLabel: selectedClass,
+        board: board.trim() || undefined,
+        subjects,
+        locality,
+        mode,
+        schedule: schedule.trim() || "Flexible",
+        note: note.trim() || undefined,
+      });
+      toast.success("Requirement posted");
+      router.push("/thank-you");
+    } catch (error) {
+      toastApiError(error, "Could not post requirement");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
     <>
-      <AppHeader narrow
+      <AppHeader
+        narrow
         title="Post requirement"
         showBrand={false}
         backHref="/parent/home"
@@ -63,6 +102,17 @@ export default function NewRequirementPage() {
 
         {step === 0 ? (
           <Card className="gap-4 p-4 md:p-6">
+            <div className="space-y-2">
+              <Label htmlFor="title">
+                <Typography variant="label">Title (optional)</Typography>
+              </Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="e.g. Class 10 Maths home tutor"
+              />
+            </div>
             <div className="space-y-2">
               <Typography variant="label">Class</Typography>
               <div className="flex flex-wrap gap-2">
@@ -89,6 +139,17 @@ export default function NewRequirementPage() {
                 ))}
               </div>
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="board">
+                <Typography variant="label">Board</Typography>
+              </Label>
+              <Input
+                id="board"
+                value={board}
+                onChange={(event) => setBoard(event.target.value)}
+                placeholder="CBSE / UP Board"
+              />
+            </div>
           </Card>
         ) : null}
 
@@ -105,10 +166,32 @@ export default function NewRequirementPage() {
                 />
               ))}
             </div>
-            <Typography variant="muted">
-              Mode is home tuition for MVP. Preferred evenings work best for most
-              tutors.
-            </Typography>
+            <div className="space-y-2">
+              <Typography variant="label">Mode</Typography>
+              <div className="flex flex-wrap gap-2">
+                <FilterChip
+                  label="Home tuition"
+                  active={mode === "home"}
+                  onClick={() => setMode("home")}
+                />
+                <FilterChip
+                  label="Online"
+                  active={mode === "online"}
+                  onClick={() => setMode("online")}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="schedule">
+                <Typography variant="label">Schedule</Typography>
+              </Label>
+              <Input
+                id="schedule"
+                value={schedule}
+                onChange={(event) => setSchedule(event.target.value)}
+                placeholder="Weekday evenings"
+              />
+            </div>
           </Card>
         ) : null}
 
@@ -122,16 +205,24 @@ export default function NewRequirementPage() {
               value={note}
               onChange={(event) => setNote(event.target.value)}
               placeholder="Share board, weak topics, or preferred days..."
-              className="min-h-28 rounded-xl"
+              className="min-h-28"
             />
           </Card>
         ) : null}
       </PageMain>
 
       <StickyCta narrow>
-        <Button className="h-12 w-full rounded-xl" onClick={next}>
+        <Button
+          className="h-12 w-full"
+          onClick={() => void next()}
+          disabled={submitting}
+        >
           <Typography variant="button" className="text-primary-foreground">
-            {step === steps.length - 1 ? "Submit requirement" : "Continue"}
+            {submitting
+              ? "Submitting…"
+              : step === steps.length - 1
+                ? "Submit requirement"
+                : "Continue"}
           </Typography>
         </Button>
       </StickyCta>

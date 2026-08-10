@@ -18,17 +18,33 @@ import { PageMain } from "@/components/layout/page-main";
 import { SectionHeader } from "@/components/layout/section-header";
 import { Typography } from "@/components/typography";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { initialsFromName, useTeacherProfile } from "@/hooks/use-account";
+import { initialsFromName } from "@/hooks/use-account";
+import { useAuth } from "@/hooks/use-auth";
+import { useProfile } from "@/hooks/use-profile";
+import { isTeacherProfileMe } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
 export default function TeacherProfilePage() {
-  const { value: profile, ready } = useTeacherProfile();
+  const { data, loading } = useProfile();
+  const { logout } = useAuth();
+  const profile =
+    data && isTeacherProfileMe(data) ? data.profile : null;
+  const ready = !loading;
+  const displayName = profile?.name || "Teacher";
+  const classes = profile?.classes ?? [];
+  const subjects = profile?.subjects ?? [];
+  const localities = profile?.localities ?? [];
+  const coversAll = profile?.coversAllLocalities ?? false;
   const classesDisplay =
-    profile.classes.length > 0
-      ? `Classes ${[...profile.classes].sort((a, b) => Number(a) - Number(b)).join(", ")}`
+    classes.length > 0
+      ? `Classes ${[...classes].sort((a, b) => Number(a) - Number(b)).join(", ")}`
       : "Classes not set";
+  const areasDisplay = coversAll
+    ? "All Farrukhabad localities"
+    : localities.join(", ") || "Add areas";
+  const verified = profile?.verificationStatus === "verified";
 
   return (
     <>
@@ -40,17 +56,17 @@ export default function TeacherProfilePage() {
               <Avatar className="size-20 md:size-24">
                 <AvatarFallback
                   className="bg-accent text-lg text-accent-foreground md:text-xl"
-                  aria-label={`Profile photo placeholder for ${profile.name}`}
+                  aria-label={`Profile photo placeholder for ${displayName}`}
                 >
-                  {ready ? initialsFromName(profile.name) : "…"}
+                  {ready ? initialsFromName(displayName) : "…"}
                 </AvatarFallback>
               </Avatar>
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center justify-center gap-2 lg:justify-start">
                   <Typography variant="h2" className="text-xl tracking-tight md:text-2xl">
-                    {ready ? profile.name : "Loading…"}
+                    {ready ? displayName : "Loading…"}
                   </Typography>
-                  <VerifiedBadge />
+                  {verified ? <VerifiedBadge /> : null}
                 </div>
                 <Typography variant="muted">Teacher account</Typography>
               </div>
@@ -58,20 +74,24 @@ export default function TeacherProfilePage() {
             <div className="space-y-2 rounded-xl bg-muted/50 p-3 text-left">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="size-4 shrink-0" aria-hidden />
-                <Typography variant="bodySmall">
-                  {profile.areas.join(", ") || "Add areas"}
-                </Typography>
+                <Typography variant="bodySmall">{areasDisplay}</Typography>
               </div>
               <Typography variant="bodySmall" className="font-medium">
-                {profile.subjects.join(", ") || "Add subjects"} · {classesDisplay}
+                {subjects.join(", ") || "Add subjects"} · {classesDisplay}
               </Typography>
               <Typography variant="small">
-                ₹{profile.feeMin}–{profile.feeMax} / hour · {profile.experienceYears}y
-                exp
+                {profile?.feeMin != null && profile?.feeMax != null
+                  ? `₹${profile.feeMin}–${profile.feeMax} / hour`
+                  : "Add fee range"}
               </Typography>
-              {profile.bio ? (
+              {profile?.bio ? (
                 <Typography variant="muted" className="text-sm">
                   {profile.bio}
+                </Typography>
+              ) : null}
+              {data && isTeacherProfileMe(data) && !data.isComplete ? (
+                <Typography variant="small" className="text-amber-700">
+                  Finish your profile to unlock better lead matching.
                 </Typography>
               ) : null}
             </div>
@@ -84,16 +104,15 @@ export default function TeacherProfilePage() {
                 Edit teaching profile
               </Typography>
             </Link>
-            <Link
-              href="/role"
-              className={cn(
-                buttonVariants({ variant: "outline" }),
-                "h-11 w-full rounded-xl"
-              )}
+            <Button
+              type="button"
+              variant="outline"
+              className="h-11 w-full rounded-xl"
+              onClick={() => logout()}
             >
               <LogOut className="size-4" aria-hidden />
-              <Typography variant="button">Switch role / sign out</Typography>
-            </Link>
+              <Typography variant="button">Sign out</Typography>
+            </Button>
           </Card>
 
           <div className="space-y-4">
@@ -108,7 +127,12 @@ export default function TeacherProfilePage() {
                       Verification center
                     </Typography>
                     <Typography variant="muted" className="text-sm">
-                      Status: Verified · Manage ID documents
+                      Status:{" "}
+                      {profile?.verificationStatus
+                        ? profile.verificationStatus.charAt(0).toUpperCase() +
+                          profile.verificationStatus.slice(1)
+                        : "Unverified"}{" "}
+                      · Manage ID documents
                     </Typography>
                   </div>
                 </Card>
@@ -123,7 +147,7 @@ export default function TeacherProfilePage() {
                       Teaching profile
                     </Typography>
                     <Typography variant="muted" className="text-sm">
-                      {profile.board || "Add board"} · Edit subjects & fees
+                      Edit subjects, areas & fees
                     </Typography>
                   </div>
                 </Card>

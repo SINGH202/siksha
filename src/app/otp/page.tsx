@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Lock } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { Typography } from "@/components/typography";
@@ -14,14 +15,27 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import {
+  homePathForRole,
+  toastApiError,
+  useAuth,
+} from "@/hooks/use-auth";
+import { formatPhoneDisplay, toE164Phone } from "@/lib/auth/phone";
 
 function OtpForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const role = searchParams.get("role") === "teacher" ? "teacher" : "parent";
-  const phone = searchParams.get("phone") ?? "9876543210";
+  const rawPhone = searchParams.get("phone") ?? "";
+  const phone = toE164Phone(rawPhone) ?? rawPhone;
+  const { verifyOtp, requestOtp, pending } = useAuth();
   const [otp, setOtp] = useState("");
   const [seconds, setSeconds] = useState(45);
+
+  useEffect(() => {
+    if (!toE164Phone(rawPhone)) {
+      router.replace("/login");
+    }
+  }, [rawPhone, router]);
 
   useEffect(() => {
     if (seconds <= 0) return;
@@ -29,12 +43,31 @@ function OtpForm() {
     return () => window.clearTimeout(timer);
   }, [seconds]);
 
-  function verify(event: React.FormEvent) {
+  async function verify(event: React.FormEvent) {
     event.preventDefault();
-    router.push(role === "teacher" ? "/teacher/home" : "/parent/home");
+    if (otp.length < 6) return;
+    try {
+      const result = await verifyOtp(phone, otp);
+      toast.success("Signed in");
+      router.replace(homePathForRole(result.user.role));
+    } catch (error) {
+      toastApiError(error, "Invalid OTP");
+    }
   }
 
-  const formattedPhone = `+91 ${phone.slice(0, 5)} ${phone.slice(5)}`;
+  async function resend() {
+    try {
+      const result = await requestOtp(phone);
+      setSeconds(45);
+      if (result.devCode) {
+        toast.message(`Dev OTP: ${result.devCode}`);
+      } else {
+        toast.success("OTP resent");
+      }
+    } catch (error) {
+      toastApiError(error, "Could not resend OTP");
+    }
+  }
 
   return (
     <AppShell variant="auth" className="justify-center">
@@ -46,7 +79,7 @@ function OtpForm() {
                 Siksha
               </Typography>
               <Typography variant="muted">
-                Secure access to your learning portal
+                Enter the 6-digit code sent to your phone
               </Typography>
             </div>
 
@@ -54,10 +87,10 @@ function OtpForm() {
               <Typography variant="label">Phone number</Typography>
               <div className="flex h-12 items-center justify-between rounded-xl bg-muted px-3.5 ring-1 ring-border/50">
                 <Typography variant="bodySmall" className="font-medium">
-                  {formattedPhone}
+                  {formatPhoneDisplay(phone)}
                 </Typography>
                 <Link
-                  href={`/login?role=${role}`}
+                  href="/login"
                   className="text-sm font-medium text-primary underline-offset-4 hover:underline"
                 >
                   Edit
@@ -88,8 +121,8 @@ function OtpForm() {
                 <button
                   type="button"
                   className="text-sm font-semibold text-primary disabled:opacity-40"
-                  disabled={seconds > 0}
-                  onClick={() => setSeconds(45)}
+                  disabled={seconds > 0 || pending}
+                  onClick={() => void resend()}
                 >
                   Resend OTP
                 </button>
@@ -100,10 +133,10 @@ function OtpForm() {
               type="submit"
               size="lg"
               className="w-full text-base"
-              disabled={otp.length < 6}
+              disabled={otp.length < 6 || pending}
             >
               <Typography variant="button" className="text-primary-foreground">
-                Verify & Proceed
+                {pending ? "Verifying…" : "Verify & Proceed"}
               </Typography>
             </Button>
           </form>

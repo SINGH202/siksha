@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { RequireAuth } from "@/components/auth/require-auth";
 import { AppShell } from "@/components/layout/app-shell";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { SideNav } from "@/components/layout/side-nav";
@@ -19,9 +20,11 @@ export default function TeacherLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <AppShell withBottomNav sidebar={<SideNav role="teacher" />}>
-      {children}
-      <BottomNav role="teacher" />
-    </AppShell>
+    <RequireAuth role="teacher">
+      <AppShell withBottomNav sidebar={<SideNav role="teacher" />}>
+        {children}
+        <BottomNav role="teacher" />
+      </AppShell>
+    </RequireAuth>
   );
 }
