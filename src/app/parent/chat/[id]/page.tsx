@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Plus, Send, ShieldCheck } from "lucide-react";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { toast } from "sonner";
 
 import { ChatBubble } from "@/components/domain/chat-bubble";
 import { ChatInbox } from "@/components/domain/chat-inbox";
@@ -17,8 +18,6 @@ import { useChatSocket } from "@/hooks/use-chat-socket";
 import { useConversationMessages } from "@/hooks/use-conversation-messages";
 import { useConversations } from "@/hooks/use-conversations";
 import { useHires } from "@/hooks/use-hires";
-import { ApiError } from "@/lib/api/client";
-import * as conversationsApi from "@/lib/api/conversations";
 import { formatMessageTime, toChatPreview } from "@/lib/api/mappers";
 import { cn } from "@/lib/utils";
 
@@ -48,8 +47,10 @@ export default function ParentChatThreadPage() {
   // set-state-in-effect pattern already used inside useChatSocket).
   const [pollWhenDisconnected, setPollWhenDisconnected] = useState(true);
 
-  const { messages, loading, error, nextCursor, loadEarlier, send, mergeMessage } =
+  const { messages, loading, error, errorStatus, nextCursor, loadEarlier, send, mergeMessage } =
     useConversationMessages(conversationId, { pollWhenDisconnected });
+
+  const redirectedRef = useRef(false);
 
   const { connected, peerTyping, notifyTyping } = useChatSocket(conversationId, {
     enabled: Boolean(conversationId),
@@ -62,19 +63,16 @@ export default function ParentChatThreadPage() {
   }, [connected]);
 
   useEffect(() => {
-    if (!conversationId) return;
-    const controller = new AbortController();
-    conversationsApi
-      .listMessages(conversationId, undefined, controller.signal)
-      .catch((err) => {
-        if (controller.signal.aborted) return;
-        if (err instanceof ApiError && (err.statusCode === 403 || err.statusCode === 404)) {
-          toastApiError(err, "Conversation not found");
-          router.replace("/parent/chat");
-        }
-      });
-    return () => controller.abort();
-  }, [conversationId, router]);
+    redirectedRef.current = false;
+  }, [conversationId]);
+
+  useEffect(() => {
+    if (redirectedRef.current) return;
+    if (errorStatus !== 403 && errorStatus !== 404) return;
+    redirectedRef.current = true;
+    toast.error(error ?? "Conversation not found");
+    router.replace("/parent/chat");
+  }, [errorStatus, error, router]);
 
   const activeConversation = conversations.find((item) => item.id === conversationId);
   const activePreview = activeConversation

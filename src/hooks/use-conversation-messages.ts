@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import * as conversationsApi from "@/lib/api/conversations";
 import type { ChatMessage } from "@/lib/api/types";
 import { getErrorMessage } from "@/hooks/use-auth";
+import { ApiError } from "@/lib/api/client";
 
 const POLL_INTERVAL_MS = 15_000;
 
@@ -38,6 +39,7 @@ export function useConversationMessages(
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [errorStatus, setErrorStatus] = useState<number | null>(null);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const loadingEarlierRef = useRef(false);
 
@@ -46,6 +48,7 @@ export function useConversationMessages(
       if (!conversationId) return;
       setLoading(true);
       setError(null);
+      setErrorStatus(null);
       try {
         const page = await conversationsApi.listMessages(
           conversationId,
@@ -55,9 +58,11 @@ export function useConversationMessages(
         if (signal?.aborted) return;
         setMessages(page.messages);
         setNextCursor(page.nextCursor);
+        setErrorStatus(null);
       } catch (err) {
         if (signal?.aborted) return;
         setError(getErrorMessage(err, "Could not load messages"));
+        setErrorStatus(err instanceof ApiError ? err.statusCode : null);
       } finally {
         if (!signal?.aborted) setLoading(false);
       }
@@ -69,6 +74,7 @@ export function useConversationMessages(
     setMessages([]);
     setNextCursor(null);
     setError(null);
+    setErrorStatus(null);
 
     const controller = new AbortController();
     const timer = window.setTimeout(() => {
@@ -165,6 +171,7 @@ export function useConversationMessages(
     messages,
     loading,
     error,
+    errorStatus,
     nextCursor,
     loadEarlier,
     send,
