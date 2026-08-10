@@ -142,14 +142,16 @@ export function useChatSocket(
 
   const notifyTyping = useCallback(() => {
     if (!conversationId) return;
-    if (typingTimerRef.current != null) {
+    const socket = socketRef.current;
+    if (typingTimerRef.current == null) {
+      if (socket && joinedRef.current) {
+        emitTyping(socket, conversationId);
+      }
+    } else {
       window.clearTimeout(typingTimerRef.current);
     }
     typingTimerRef.current = window.setTimeout(() => {
       typingTimerRef.current = null;
-      const socket = socketRef.current;
-      if (!socket || !joinedRef.current) return;
-      emitTyping(socket, conversationId);
     }, TYPING_DEBOUNCE_MS);
   }, [conversationId]);
 

@@ -68,10 +68,7 @@ export default function ParentRequirementsPage() {
           {items.map((requirement) => (
             <RequirementCard
               key={requirement.id}
-              requirement={toUiRequirement(
-                requirement,
-                requirement.status === "applicants" ? 1 : 0
-              )}
+              requirement={toUiRequirement(requirement)}
               href={`/parent/requirements/${requirement.id}`}
               className="h-full"
             />

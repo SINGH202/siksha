@@ -44,6 +44,8 @@ export default function ParentChatThreadPage() {
 
   const [message, setMessage] = useState("");
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   const redirectedRef = useRef(false);
 
   const mergeMessageRef = useRef<(message: ChatMessage) => void>(() => undefined);
@@ -64,6 +66,12 @@ export default function ParentChatThreadPage() {
   useEffect(() => {
     redirectedRef.current = false;
   }, [conversationId]);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    container.scrollTop = container.scrollHeight;
+  }, [conversationId, messages.length]);
 
   useEffect(() => {
     if (redirectedRef.current) return;
@@ -165,7 +173,10 @@ export default function ParentChatThreadPage() {
           </Typography>
         </div>
 
-        <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 md:px-6 md:py-5">
+        <div
+          ref={scrollContainerRef}
+          className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 md:px-6 md:py-5"
+        >
           {nextCursor ? (
             <div className="flex justify-center">
               <Button variant="outline" size="sm" onClick={() => void loadEarlier()}>

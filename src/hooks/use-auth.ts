@@ -37,6 +37,27 @@ function getServerSnapshot() {
   return EMPTY_SESSION;
 }
 
+function subscribeNever() {
+  return () => undefined;
+}
+
+function getHydratedSnapshot() {
+  return true;
+}
+
+function getHydratedServerSnapshot() {
+  return false;
+}
+
+/** True once the client has mounted, false during SSR/hydration. */
+function useHydrated() {
+  return useSyncExternalStore(
+    subscribeNever,
+    getHydratedSnapshot,
+    getHydratedServerSnapshot
+  );
+}
+
 export function useAuth() {
   const session = useSyncExternalStore(
     subscribe,
@@ -120,14 +141,16 @@ export function useRequireAuth(options?: {
 }) {
   const auth = useAuth();
   const router = useRouter();
+  const hydrated = useHydrated();
 
   const role = auth.user?.role ?? null;
   const needsLogin = !auth.accessToken;
   const needsRole = Boolean(auth.accessToken) && !role && !options?.allowNullRole;
   const wrongRole = Boolean(options?.role && role && role !== options.role);
-  const ready = Boolean(auth.accessToken) && !needsRole && !wrongRole;
+  const ready = hydrated && Boolean(auth.accessToken) && !needsRole && !wrongRole;
 
   useEffect(() => {
+    if (!hydrated) return;
     if (needsLogin) {
       router.replace("/login");
       return;
@@ -139,7 +162,7 @@ export function useRequireAuth(options?: {
     if (wrongRole && role) {
       router.replace(homePathForRole(role));
     }
-  }, [needsLogin, needsRole, wrongRole, role, router]);
+  }, [hydrated, needsLogin, needsRole, wrongRole, role, router]);
 
   return { ...auth, ready };
 }
