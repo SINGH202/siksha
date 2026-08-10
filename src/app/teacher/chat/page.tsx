@@ -5,12 +5,10 @@ import { PageMain } from "@/components/layout/page-main";
 import { SectionHeader } from "@/components/layout/section-header";
 import { ChatEmptyDesktopPanel, ChatInbox } from "@/components/domain/chat-inbox";
 import { Typography } from "@/components/typography";
-import { useAuth } from "@/hooks/use-auth";
 import { useConversations } from "@/hooks/use-conversations";
 import { toChatPreview } from "@/lib/api/mappers";
 
 export default function TeacherChatListPage() {
-  const { user } = useAuth();
   const { items, loading, error } = useConversations();
   const previews = items.map((item) => toChatPreview(item, "teacher"));
 

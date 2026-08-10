@@ -20,6 +20,7 @@ import { useConversationMessages } from "@/hooks/use-conversation-messages";
 import { useConversations } from "@/hooks/use-conversations";
 import { useHires } from "@/hooks/use-hires";
 import { formatMessageTime, toChatPreview } from "@/lib/api/mappers";
+import type { ChatMessage } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
 function peerInitials(name: string): string {
@@ -43,25 +44,23 @@ export default function TeacherChatThreadPage() {
   const { items: hires } = useHires();
 
   const [message, setMessage] = useState("");
-  // Starts true (assume disconnected) so we poll until the socket confirms
-  // it is connected; synced from `connected` below (mirrors the same
-  // set-state-in-effect pattern already used inside useChatSocket).
-  const [pollWhenDisconnected, setPollWhenDisconnected] = useState(true);
-
-  const { messages, loading, error, errorStatus, nextCursor, loadEarlier, send, mergeMessage } =
-    useConversationMessages(conversationId, { pollWhenDisconnected });
 
   const redirectedRef = useRef(false);
+
+  const mergeMessageRef = useRef<(message: ChatMessage) => void>(() => undefined);
 
   const { connected, peerTyping, notifyTyping } = useChatSocket(conversationId, {
     enabled: Boolean(conversationId),
     selfUserId: user?.id ?? null,
-    onMessage: mergeMessage,
+    onMessage: (msg) => mergeMessageRef.current(msg),
   });
 
+  const { messages, loading, error, errorStatus, nextCursor, loadEarlier, send, mergeMessage } =
+    useConversationMessages(conversationId, { pollWhenDisconnected: !connected });
+
   useEffect(() => {
-    setPollWhenDisconnected(!connected);
-  }, [connected]);
+    mergeMessageRef.current = mergeMessage;
+  }, [mergeMessage]);
 
   useEffect(() => {
     redirectedRef.current = false;

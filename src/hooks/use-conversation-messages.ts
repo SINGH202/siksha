@@ -49,6 +49,8 @@ export function useConversationMessages(
       setLoading(true);
       setError(null);
       setErrorStatus(null);
+      setMessages([]);
+      setNextCursor(null);
       try {
         const page = await conversationsApi.listMessages(
           conversationId,
@@ -71,11 +73,6 @@ export function useConversationMessages(
   );
 
   useEffect(() => {
-    setMessages([]);
-    setNextCursor(null);
-    setError(null);
-    setErrorStatus(null);
-
     const controller = new AbortController();
     const timer = window.setTimeout(() => {
       void reload(controller.signal);

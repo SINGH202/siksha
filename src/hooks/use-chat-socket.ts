@@ -33,10 +33,15 @@ export function useChatSocket(
   const [peerTyping, setPeerTyping] = useState(false);
 
   const onMessageRef = useRef(onMessage);
-  onMessageRef.current = onMessage;
-
   const selfUserIdRef = useRef(selfUserId);
-  selfUserIdRef.current = selfUserId;
+
+  useEffect(() => {
+    onMessageRef.current = onMessage;
+  }, [onMessage]);
+
+  useEffect(() => {
+    selfUserIdRef.current = selfUserId;
+  }, [selfUserId]);
 
   const joinedRef = useRef(false);
   const typingTimerRef = useRef<number | null>(null);
@@ -45,11 +50,12 @@ export function useChatSocket(
 
   useEffect(() => {
     joinedRef.current = false;
-    setConnected(false);
-    setPeerTyping(false);
 
     if (!enabled || !conversationId) {
-      return;
+      return () => {
+        setConnected(false);
+        setPeerTyping(false);
+      };
     }
 
     const token = getAccessToken();
@@ -61,8 +67,6 @@ export function useChatSocket(
     socketRef.current = socket;
 
     let cancelled = false;
-    let offMessage: (() => void) | undefined;
-    let offTyping: (() => void) | undefined;
 
     const clearPeerTypingTimer = () => {
       if (peerTypingClearRef.current != null) {
@@ -85,14 +89,16 @@ export function useChatSocket(
     socket.on("connect", handleConnect);
     socket.on("disconnect", handleDisconnect);
     if (socket.connected) {
-      setConnected(true);
+      queueMicrotask(() => {
+        if (!cancelled) setConnected(true);
+      });
     }
 
-    offMessage = onMessageNew(socket, (message) => {
+    const offMessage = onMessageNew(socket, (message) => {
       onMessageRef.current(message);
     });
 
-    offTyping = onTyping(socket, (payload) => {
+    const offTyping = onTyping(socket, (payload) => {
       if (payload.conversationId !== conversationId) return;
       if (
         selfUserIdRef.current &&
@@ -116,6 +122,8 @@ export function useChatSocket(
     return () => {
       cancelled = true;
       joinedRef.current = false;
+      setConnected(false);
+      setPeerTyping(false);
       clearPeerTypingTimer();
       if (typingTimerRef.current != null) {
         window.clearTimeout(typingTimerRef.current);
