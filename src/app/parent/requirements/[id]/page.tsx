@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 import { BookOpen, CalendarDays, MapPin, Quote } from "lucide-react";
 
 import { StatusBadge } from "@/components/domain/status-badge";
@@ -12,18 +13,40 @@ import { SectionHeader } from "@/components/layout/section-header";
 import { Typography } from "@/components/typography";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { toastApiError } from "@/hooks/use-auth";
+import { useConversations } from "@/hooks/use-conversations";
 import { useRequirementDetail } from "@/hooks/use-requirements";
 import { toUiRequirement } from "@/lib/api/mappers";
+import type { RequirementApplication } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
 export default function RequirementDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
+  const { create } = useConversations();
+  const [openingChatId, setOpeningChatId] = useState<string | null>(null);
   const { requirement, applications, loading, error } = useRequirementDetail(
     params.id
   );
+
+  async function openChat(application: RequirementApplication) {
+    if (!requirement) return;
+    setOpeningChatId(application.id);
+    try {
+      const conversation = await create({
+        requirementId: requirement.id,
+        teacherId: application.teacherId,
+      });
+      router.push(`/parent/chat/${conversation.id}`);
+    } catch (error) {
+      toastApiError(error, "Could not open chat");
+    } finally {
+      setOpeningChatId(null);
+    }
+  }
 
   if (!loading && (error || !requirement)) {
     return (
@@ -206,15 +229,14 @@ export default function RequirementDetailPage() {
                       <Typography variant="muted" className="text-sm">
                         {application.note}
                       </Typography>
-                      <Link
-                        href="/parent/chat"
-                        className={cn(
-                          buttonVariants({ variant: "outline" }),
-                          "h-10 w-full"
-                        )}
+                      <Button
+                        variant="outline"
+                        className="h-10 w-full"
+                        disabled={openingChatId === application.id}
+                        onClick={() => void openChat(application)}
                       >
                         <Typography variant="button">Open chat</Typography>
-                      </Link>
+                      </Button>
                     </Card>
                   );
                 })
