@@ -10,6 +10,7 @@ import {
   Pencil,
   Settings2,
   Shield,
+  Star,
 } from "lucide-react";
 
 import { VerifiedBadge } from "@/components/domain/status-badge";
@@ -23,12 +24,40 @@ import { Card } from "@/components/ui/card";
 import { initialsFromName } from "@/hooks/use-account";
 import { useAuth } from "@/hooks/use-auth";
 import { useProfile } from "@/hooks/use-profile";
+import { useTeacherReviews } from "@/hooks/use-teacher-reviews";
+import { formatActivityTime } from "@/lib/api/mappers";
 import { isTeacherProfileMe } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
+function ReviewStars({ rating }: { rating: number }) {
+  return (
+    <div className="flex gap-0.5" aria-label={`${rating} out of 5 stars`}>
+      {Array.from({ length: 5 }).map((_, index) => {
+        const value = index + 1;
+        return (
+          <Star
+            key={value}
+            className={`size-4 ${
+              value <= rating
+                ? "fill-warning text-warning-foreground"
+                : "text-muted-foreground/40"
+            }`}
+            aria-hidden
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 export default function TeacherProfilePage() {
   const { data, loading } = useProfile();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
+  const {
+    items: reviews,
+    loading: reviewsLoading,
+    error: reviewsError,
+  } = useTeacherReviews(user?.id);
   const profile =
     data && isTeacherProfileMe(data) ? data.profile : null;
   const ready = !loading;
@@ -153,6 +182,45 @@ export default function TeacherProfilePage() {
                 </Card>
               </Link>
             </div>
+
+            <Card className="gap-3 p-4 md:p-5">
+              <SectionHeader title="Parent reviews" />
+              {reviewsLoading ? (
+                <Typography variant="muted" className="text-sm">
+                  Loading reviews…
+                </Typography>
+              ) : reviewsError ? (
+                <Typography variant="small" className="text-destructive">
+                  {reviewsError}
+                </Typography>
+              ) : reviews.length === 0 ? (
+                <Typography variant="muted" className="text-sm">
+                  No reviews yet
+                </Typography>
+              ) : (
+                <ul className="space-y-3">
+                  {reviews.map((review) => (
+                    <li
+                      key={review.id}
+                      className="space-y-2 rounded-2xl bg-muted/40 p-3"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <Typography variant="h3" className="text-sm tracking-tight">
+                          {review.parentName?.trim() || "Parent"}
+                        </Typography>
+                        <Typography variant="small" className="text-muted-foreground">
+                          {formatActivityTime(review.createdAt)}
+                        </Typography>
+                      </div>
+                      <ReviewStars rating={review.rating} />
+                      {review.body ? (
+                        <Typography variant="bodySmall">{review.body}</Typography>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
 
             <Card className="gap-3 p-4 md:p-5">
               <SectionHeader title="Support & preferences" />

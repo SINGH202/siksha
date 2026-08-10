@@ -89,7 +89,7 @@ export default async function TeacherProfilePage({ params }: PageProps) {
 
       <StickyCta narrow>
         <Link
-          href="/parent/chat/c1"
+          href="/parent/requirements/new"
           className={cn(buttonVariants(), "h-12 w-full rounded-xl")}
         >
           <Typography variant="button" className="text-primary-foreground">
