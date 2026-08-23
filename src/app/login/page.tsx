@@ -89,11 +89,8 @@ export default function LoginPage() {
 
           <Typography variant="small" className="text-center">
             New here?{" "}
-            <Link
-              href="/"
-              className="text-primary underline-offset-4 hover:underline"
-            >
-              Learn about Siksha
+            <Link href="/">
+              <Typography variant="link">Learn about Siksha</Typography>
             </Link>
           </Typography>
         </Card>

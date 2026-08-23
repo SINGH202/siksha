@@ -99,14 +99,17 @@ export default function ParentSettingsPage() {
         <div className="flex flex-col gap-2 pt-1 sm:flex-row">
           <Link
             href="/parent/profile/edit"
-            className={cn(buttonVariants(), "h-11")}>
+            className={cn(buttonVariants(), "h-11 w-full sm:w-auto")}>
             <Typography variant="button" className="text-primary-foreground">
               Edit profile details
             </Typography>
           </Link>
           <Link
             href="/parent/help"
-            className={cn(buttonVariants({ variant: "outline" }), "h-11")}>
+            className={cn(
+              buttonVariants({ variant: "outline" }),
+              "h-11 w-full sm:w-auto",
+            )}>
             <Typography variant="button">Open help center</Typography>
           </Link>
         </div>

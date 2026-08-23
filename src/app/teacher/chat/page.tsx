@@ -6,6 +6,7 @@ import { SectionHeader } from "@/components/layout/section-header";
 import {
   ChatEmptyDesktopPanel,
   ChatInbox,
+  ChatInboxSkeleton,
 } from "@/components/domain/chat-inbox";
 import { Typography } from "@/components/typography";
 import { useConversations } from "@/hooks/use-conversations";
@@ -14,6 +15,7 @@ import { toChatPreview } from "@/lib/api/mappers";
 export default function TeacherChatListPage() {
   const { items, loading, error } = useConversations();
   const previews = items.map((item) => toChatPreview(item, "teacher"));
+  const inboxEmpty = !loading && previews.length === 0;
 
   return (
     <>
@@ -29,19 +31,40 @@ export default function TeacherChatListPage() {
               title={`Inbox (${loading ? "…" : previews.length})`}
               className="hidden lg:flex [&_h3]:text-sm"
             />
-            {loading ? (
-              <Typography variant="muted">Loading conversations…</Typography>
-            ) : null}
+            {loading ? <ChatInboxSkeleton /> : null}
             {error ? (
               <Typography variant="muted" className="text-destructive">
                 {error}
               </Typography>
             ) : null}
             {!loading && !error ? (
-              <ChatInbox chats={previews} basePath="/teacher/chat" />
+              <ChatInbox
+                chats={previews}
+                basePath="/teacher/chat"
+                emptyAction={{
+                  href: "/teacher/leads",
+                  label: "See new leads",
+                }}
+              />
             ) : null}
           </section>
-          <ChatEmptyDesktopPanel title="Select a parent conversation" />
+          <ChatEmptyDesktopPanel
+            title={
+              inboxEmpty
+                ? "No parent messages yet"
+                : "Select a parent conversation"
+            }
+            description={
+              inboxEmpty
+                ? "Apply to a lead and chat stays on Siksha. Keep contact details off the thread."
+                : undefined
+            }
+            action={
+              inboxEmpty
+                ? { href: "/teacher/leads", label: "See new leads" }
+                : undefined
+            }
+          />
         </div>
       </PageMain>
     </>

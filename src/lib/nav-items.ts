@@ -41,7 +41,6 @@ export const parentNavItems: NavItem[] = [
     label: "Chat",
     desktopLabel: "Messages",
     icon: MessageCircle,
-    badge: true,
   },
   {
     href: "/parent/profile",
@@ -77,7 +76,6 @@ export const teacherNavItems: NavItem[] = [
     label: "Chat",
     desktopLabel: "Messages",
     icon: MessageCircle,
-    badge: true,
   },
   {
     href: "/teacher/profile",

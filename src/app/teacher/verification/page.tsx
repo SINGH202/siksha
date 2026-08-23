@@ -16,7 +16,7 @@ import { PageMain } from "@/components/layout/page-main";
 import { SectionHeader } from "@/components/layout/section-header";
 import { Typography } from "@/components/typography";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toastApiError, useAuth } from "@/hooks/use-auth";
 import { useProfile } from "@/hooks/use-profile";
@@ -275,7 +275,12 @@ export default function VerificationPage() {
             void handleFileChange(event.target.files?.[0]);
           }}
         />
-        <Card className="items-center gap-3 border-dashed border-border/80 p-6 text-center shadow-soft">
+        <button
+          type="button"
+          disabled={submitting}
+          aria-label={uploadTitle(verificationStatus)}
+          onClick={openPicker}
+          className="flex w-full flex-col items-center gap-3 rounded-2xl border border-dashed border-border/80 bg-card p-6 text-center shadow-soft ring-1 ring-black/5 transition-colors hover:border-primary/30 hover:bg-accent/20 disabled:pointer-events-none disabled:opacity-60">
           <span className="flex size-12 items-center justify-center rounded-2xl bg-accent text-primary shadow-soft">
             {submitting ? (
               <IdCard className="size-6 animate-pulse" aria-hidden />
@@ -297,18 +302,17 @@ export default function VerificationPage() {
           {submitting ? (
             <Typography variant="small">Uploading…</Typography>
           ) : null}
-          <Button
-            type="button"
-            className="h-11 px-5"
-            disabled={submitting}
-            aria-label={uploadTitle(verificationStatus)}
-            onClick={openPicker}>
+          <span
+            className={cn(
+              buttonVariants(),
+              "pointer-events-none h-11 w-full"
+            )}>
             <Upload className="size-4" aria-hidden />
             <Typography variant="button" className="text-primary-foreground">
               {submitting ? "Uploading…" : uploadButtonLabel(verificationStatus)}
             </Typography>
-          </Button>
-        </Card>
+          </span>
+        </button>
       </PageMain>
     </>
   );

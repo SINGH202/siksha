@@ -222,7 +222,7 @@ export default function EditTeacherProfilePage() {
         narrow
         subtitle="Complete this to unlock matching leads."
       />
-      <PageMain narrow className="gap-4 pb-28 md:pb-8">
+      <PageMain narrow className="gap-4">
         {loading ? (
           <Typography variant="muted">Loading profile…</Typography>
         ) : (

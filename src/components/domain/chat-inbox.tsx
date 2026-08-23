@@ -3,7 +3,9 @@ import { MessageCircle } from "lucide-react";
 
 import { Typography } from "@/components/typography";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { UiChatPreview } from "@/lib/api/mappers";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +19,10 @@ type ChatInboxProps = {
   basePath: "/parent/chat" | "/teacher/chat";
   activeId?: string;
   className?: string;
+  emptyAction?: {
+    href: string;
+    label: string;
+  };
 };
 
 export function ChatInbox({
@@ -24,6 +30,7 @@ export function ChatInbox({
   basePath,
   activeId,
   className,
+  emptyAction,
 }: ChatInboxProps) {
   if (chats.length === 0) {
     return (
@@ -37,6 +44,15 @@ export function ChatInbox({
         <Typography variant="muted">
           When you match with someone, chats will show up here.
         </Typography>
+        {emptyAction ? (
+          <Link
+            href={emptyAction.href}
+            className={cn(buttonVariants(), "mt-1 h-10 lg:hidden")}>
+            <Typography variant="button" className="text-primary-foreground">
+              {emptyAction.label}
+            </Typography>
+          </Link>
+        ) : null}
       </Card>
     );
   }
@@ -88,12 +104,61 @@ export function ChatInbox({
   );
 }
 
+export function ChatInboxSkeleton({ count = 4 }: { count?: number }) {
+  return (
+    <div className="space-y-2" aria-busy="true" aria-label="Loading conversations">
+      {Array.from({ length: count }).map((_, index) => (
+        <Card
+          key={index}
+          className="flex-row items-center gap-3 border-border/50 p-3.5 md:p-4">
+          <Skeleton className="size-11 shrink-0 rounded-full md:size-12" />
+          <div className="min-w-0 flex-1 space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <Skeleton className="h-4 w-28" />
+              <Skeleton className="h-3 w-10" />
+            </div>
+            <Skeleton className="h-3 w-36" />
+            <Skeleton className="h-3 w-3/4" />
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+export function ChatThreadSkeleton() {
+  return (
+    <div
+      className="flex flex-col gap-4"
+      aria-busy="true"
+      aria-label="Loading messages">
+      <div className="mr-auto flex max-w-[75%] flex-col gap-1">
+        <Skeleton className="h-16 w-56 rounded-2xl rounded-bl-md" />
+        <Skeleton className="h-3 w-12" />
+      </div>
+      <div className="ml-auto flex max-w-[75%] flex-col items-end gap-1">
+        <Skeleton className="h-12 w-44 rounded-2xl rounded-br-md" />
+        <Skeleton className="h-3 w-10" />
+      </div>
+      <div className="mr-auto flex max-w-[75%] flex-col gap-1">
+        <Skeleton className="h-20 w-64 rounded-2xl rounded-bl-md" />
+        <Skeleton className="h-3 w-12" />
+      </div>
+    </div>
+  );
+}
+
 export function ChatEmptyDesktopPanel({
   title = "Select a conversation",
   description = "Choose a chat from the list to continue messaging. Keep phone numbers off the chat until you trust the match.",
+  action,
 }: {
   title?: string;
   description?: string;
+  action?: {
+    href: string;
+    label: string;
+  };
 }) {
   return (
     <Card className="hidden h-full min-h-[28rem] flex-col items-center justify-center gap-3 border-border/50 bg-muted/25 p-10 text-center shadow-soft lg:flex">
@@ -106,6 +171,13 @@ export function ChatEmptyDesktopPanel({
       <Typography variant="muted" className="max-w-sm">
         {description}
       </Typography>
+      {action ? (
+        <Link href={action.href} className={cn(buttonVariants(), "mt-1 h-10")}>
+          <Typography variant="button" className="text-primary-foreground">
+            {action.label}
+          </Typography>
+        </Link>
+      ) : null}
     </Card>
   );
 }

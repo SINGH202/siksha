@@ -253,11 +253,11 @@ export default function AdminVerificationsPage() {
                           </div>
                         </div>
                       </div>
-                      <CardFooter className="flex flex-wrap gap-2">
+                      <CardFooter className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <Button
                           type="button"
                           variant="outline"
-                          size="sm"
+                          className="h-10 w-full sm:w-auto"
                           disabled={viewing || busy}
                           onClick={() => void handleViewId(item)}>
                           <IdCard className="size-4" aria-hidden />
@@ -265,28 +265,30 @@ export default function AdminVerificationsPage() {
                             {viewing ? "Opening…" : "View ID"}
                           </Typography>
                         </Button>
-                        <Button
-                          type="button"
-                          size="sm"
-                          disabled={busy}
-                          onClick={() => void handleApprove(item)}>
-                          <Typography
-                            variant="button"
-                            className="text-primary-foreground">
-                            {busy ? "Saving…" : "Approve"}
-                          </Typography>
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          disabled={busy}
-                          onClick={() => {
-                            setRejectItem(item);
-                            setRejectReason("");
-                          }}>
-                          <Typography variant="button">Reject</Typography>
-                        </Button>
+                        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="h-10"
+                            disabled={busy}
+                            onClick={() => {
+                              setRejectItem(item);
+                              setRejectReason("");
+                            }}>
+                            <Typography variant="button">Reject</Typography>
+                          </Button>
+                          <Button
+                            type="button"
+                            className="h-10"
+                            disabled={busy}
+                            onClick={() => void handleApprove(item)}>
+                            <Typography
+                              variant="button"
+                              className="text-primary-foreground">
+                              {busy ? "Saving…" : "Approve"}
+                            </Typography>
+                          </Button>
+                        </div>
                       </CardFooter>
                     </Card>
                   </li>
@@ -328,10 +330,21 @@ export default function AdminVerificationsPage() {
             ) : null}
           </div>
           {reviewItem ? (
-            <SheetFooter className="flex-row flex-wrap">
+            <SheetFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <Button
                 type="button"
-                className="flex-1"
+                variant="outline"
+                className="h-11 w-full sm:w-auto"
+                disabled={reviewingId === reviewItem.id}
+                onClick={() => {
+                  setRejectItem(reviewItem);
+                  setRejectReason("");
+                }}>
+                <Typography variant="button">Reject</Typography>
+              </Button>
+              <Button
+                type="button"
+                className="h-11 w-full sm:w-auto"
                 disabled={reviewingId === reviewItem.id}
                 onClick={() => void handleApprove(reviewItem)}>
                 <Typography
@@ -339,17 +352,6 @@ export default function AdminVerificationsPage() {
                   className="text-primary-foreground">
                   Approve
                 </Typography>
-              </Button>
-              <Button
-                type="button"
-                variant="destructive"
-                className="flex-1"
-                disabled={reviewingId === reviewItem.id}
-                onClick={() => {
-                  setRejectItem(reviewItem);
-                  setRejectReason("");
-                }}>
-                <Typography variant="button">Reject</Typography>
               </Button>
             </SheetFooter>
           ) : null}
@@ -383,10 +385,11 @@ export default function AdminVerificationsPage() {
             placeholder="Reason (optional)"
             onChange={(event) => setRejectReason(event.target.value)}
           />
-          <DialogFooter>
+          <DialogFooter className="gap-2 sm:justify-end">
             <Button
               type="button"
               variant="outline"
+              className="h-11 w-full sm:w-auto"
               onClick={() => {
                 setRejectItem(null);
                 setRejectReason("");
@@ -396,6 +399,7 @@ export default function AdminVerificationsPage() {
             <Button
               type="button"
               variant="destructive"
+              className="h-11 w-full sm:w-auto"
               disabled={Boolean(rejectItem && reviewingId === rejectItem.id)}
               onClick={() => void handleRejectConfirm()}>
               <Typography variant="button">Reject ID</Typography>

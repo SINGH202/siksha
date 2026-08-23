@@ -19,6 +19,7 @@ import { Typography } from "@/components/typography";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { initialsFromName } from "@/hooks/use-account";
 import { useAuth } from "@/hooks/use-auth";
 import { useProfile } from "@/hooks/use-profile";
@@ -35,12 +36,6 @@ export default function ParentProfilePage() {
   const phone = user?.phone?.replace(/^\+91/, "") ?? "—";
 
   const quickLinks = [
-    {
-      href: "/parent/profile/edit",
-      title: "Edit details",
-      detail: "Name and locality",
-      icon: Pencil,
-    },
     {
       href: "/parent/settings",
       title: "Settings",
@@ -76,11 +71,15 @@ export default function ParentProfilePage() {
                 </AvatarFallback>
               </Avatar>
               <div className="space-y-1">
-                <Typography
-                  variant="h2"
-                  className="text-xl tracking-tight md:text-2xl">
-                  {ready ? displayName : "Loading…"}
-                </Typography>
+                {ready ? (
+                  <Typography
+                    variant="h2"
+                    className="text-xl tracking-tight md:text-2xl">
+                    {displayName}
+                  </Typography>
+                ) : (
+                  <Skeleton className="mx-auto h-8 w-40 lg:mx-0" />
+                )}
                 <Typography variant="muted">Parent account</Typography>
               </div>
             </div>
@@ -110,8 +109,8 @@ export default function ParentProfilePage() {
             </Link>
             <Button
               type="button"
-              variant="outline"
-              className="h-11 w-full rounded-xl"
+              variant="ghost"
+              className="h-11 w-full"
               onClick={() => logout()}>
               <LogOut className="size-4" aria-hidden />
               <Typography variant="button">Sign out</Typography>

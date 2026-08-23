@@ -106,7 +106,7 @@ export default function EditParentProfilePage() {
         narrow
         subtitle="Name and locality help teachers understand your area."
       />
-      <PageMain narrow className="gap-4 pb-28 md:pb-8">
+      <PageMain narrow className="gap-4">
         {loading ? (
           <Typography variant="muted">Loading profile…</Typography>
         ) : (

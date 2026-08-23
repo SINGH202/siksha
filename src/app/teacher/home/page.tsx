@@ -18,23 +18,24 @@ import { cn } from "@/lib/utils";
 export default function TeacherHomePage() {
   const { data, isComplete } = useProfile();
   const { items, loading } = useLeads();
-  const displayName =
+  const firstName =
     data?.user.role === "teacher" && data.profile?.name
       ? data.profile.name.split(" ")[0]
-      : "there";
+      : null;
+  const greeting = firstName ? `Namaste, ${firstName}` : "Namaste";
 
   return (
     <>
       <AppHeader
-        showMenu
         showNotifications
+        notificationsHref="/teacher/settings"
         title="Dashboard"
         hideDesktopTitle
       />
       <PageMain>
         <div className="space-y-1.5 md:hidden">
           <Typography variant="h2" className="tracking-tight">
-            Namaste, {displayName}
+            {greeting}
           </Typography>
           <Typography variant="muted">
             New home-tuition leads near you in Farrukhabad.
@@ -45,7 +46,7 @@ export default function TeacherHomePage() {
           <div className="flex flex-col justify-between gap-6 p-8 lg:flex-row lg:items-center lg:p-10">
             <div className="space-y-2">
               <Typography variant="h2" className="text-3xl tracking-tight">
-                Namaste, {displayName}
+                {greeting}
               </Typography>
               <Typography variant="muted" className="max-w-xl text-base">
                 Review matching Class 8–12 home tuition leads and apply with

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { Bell, ChevronLeft, Menu } from "lucide-react";
+import { Bell, ChevronLeft } from "lucide-react";
 
 import { Typography } from "@/components/typography";
 import { buttonVariants } from "@/components/ui/button";
@@ -9,8 +9,9 @@ import { cn } from "@/lib/utils";
 type AppHeaderProps = {
   title?: string;
   showBrand?: boolean;
-  showMenu?: boolean;
   showNotifications?: boolean;
+  /** Opens notification preferences. Omit to hide the bell. */
+  notificationsHref?: string;
   /** Hide the desktop title row (mobile chrome still shows). */
   hideDesktopTitle?: boolean;
   backHref?: string;
@@ -25,8 +26,8 @@ type AppHeaderProps = {
 export function AppHeader({
   title,
   showBrand = true,
-  showMenu = false,
   showNotifications = false,
+  notificationsHref,
   hideDesktopTitle = false,
   backHref,
   className,
@@ -52,7 +53,11 @@ export function AppHeader({
           "md:px-8 lg:px-10",
           narrow ? "max-w-2xl" : "max-w-6xl",
         )}>
-        <div className="flex w-10 shrink-0 items-center justify-start md:w-auto md:min-w-0">
+        <div
+          className={cn(
+            "flex shrink-0 items-center justify-start md:w-auto md:min-w-0",
+            backHref ? "w-10" : "w-0 md:w-auto",
+          )}>
           {backHref ? (
             <Link
               href={backHref}
@@ -63,17 +68,6 @@ export function AppHeader({
               )}>
               <ChevronLeft className="size-5" />
             </Link>
-          ) : null}
-          {showMenu ? (
-            <button
-              type="button"
-              aria-label="Menu"
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon" }),
-                "size-10 md:hidden",
-              )}>
-              <Menu className="size-5" />
-            </button>
           ) : null}
           {showDesktopTitleBlock ? (
             <div className="hidden min-w-0 md:block">
@@ -113,16 +107,16 @@ export function AppHeader({
 
         <div className="ml-auto flex shrink-0 items-center justify-end gap-1">
           {rightSlot}
-          {showNotifications ? (
-            <button
-              type="button"
-              aria-label="Notifications"
+          {showNotifications && notificationsHref ? (
+            <Link
+              href={notificationsHref}
+              aria-label="Notification settings"
               className={cn(
                 buttonVariants({ variant: "ghost", size: "icon" }),
                 "size-10",
               )}>
               <Bell className="size-5" />
-            </button>
+            </Link>
           ) : null}
         </div>
       </div>
