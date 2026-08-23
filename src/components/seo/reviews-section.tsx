@@ -15,9 +15,11 @@ export function ReviewsSection({ className }: ReviewsSectionProps) {
     <section
       id="reviews"
       className={cn("space-y-4", className)}
-      aria-labelledby="reviews-heading"
-    >
-      <Typography variant="h2" id="reviews-heading" className="text-2xl tracking-tight">
+      aria-labelledby="reviews-heading">
+      <Typography
+        variant="h2"
+        id="reviews-heading"
+        className="text-2xl tracking-tight">
         Real parent reviews from Farrukhabad
       </Typography>
       <div className="grid gap-3 md:grid-cols-3">
@@ -30,19 +32,19 @@ export function ReviewsSection({ className }: ReviewsSectionProps) {
           return (
             <Card
               key={review.id}
-              className="gap-3 border-border/50 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-lift"
-            >
+              className="gap-3 border-border/50 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-lift">
               <div className="flex items-center gap-3">
                 <Avatar className="size-11 rounded-2xl ring-1 ring-black/5">
                   <AvatarFallback
                     className="rounded-2xl bg-accent text-accent-foreground"
-                    aria-label={review.imageAlt}
-                  >
+                    aria-label={review.imageAlt}>
                     {initials}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
-                  <Typography variant="h3" className="truncate text-sm tracking-tight">
+                  <Typography
+                    variant="h3"
+                    className="truncate text-sm tracking-tight">
                     {review.name}
                   </Typography>
                   <Typography variant="small">
@@ -52,8 +54,7 @@ export function ReviewsSection({ className }: ReviewsSectionProps) {
               </div>
               <div
                 className="flex gap-0.5 text-warning-foreground"
-                aria-label={`${review.rating} out of 5 stars`}
-              >
+                aria-label={`${review.rating} out of 5 stars`}>
                 {Array.from({ length: 5 }).map((_, index) => (
                   <Star
                     key={index}

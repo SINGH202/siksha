@@ -50,14 +50,12 @@ export function ChatInbox({
             <Card
               className={cn(
                 "flex-row items-center gap-3 border-border/50 p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-lift md:p-4",
-                active && "border-primary/35 bg-accent/50 shadow-soft"
-              )}
-            >
+                active && "border-primary/35 bg-accent/50 shadow-soft",
+              )}>
               <Avatar className="size-11 md:size-12">
                 <AvatarFallback
                   className="bg-accent text-accent-foreground"
-                  aria-label={`Conversation with ${chat.name}`}
-                >
+                  aria-label={`Conversation with ${chat.name}`}>
                   {chat.name
                     .split(" ")
                     .map((part) => part[0])

@@ -36,9 +36,8 @@ export default function ParentRequirementsPage() {
               href="/parent/requirements/new"
               className={cn(
                 buttonVariants({ size: "sm" }),
-                "rounded-full px-3 md:h-10 md:rounded-xl md:px-4"
-              )}
-            >
+                "rounded-full px-3 md:h-10 md:rounded-xl md:px-4",
+              )}>
               <Typography variant="button" className="text-primary-foreground">
                 New
               </Typography>

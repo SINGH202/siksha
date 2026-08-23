@@ -48,16 +48,31 @@ export default function ParentChatThreadPage() {
 
   const redirectedRef = useRef(false);
 
-  const mergeMessageRef = useRef<(message: ChatMessage) => void>(() => undefined);
+  const mergeMessageRef = useRef<(message: ChatMessage) => void>(
+    () => undefined,
+  );
 
-  const { connected, peerTyping, notifyTyping } = useChatSocket(conversationId, {
-    enabled: Boolean(conversationId),
-    selfUserId: user?.id ?? null,
-    onMessage: (msg) => mergeMessageRef.current(msg),
+  const { connected, peerTyping, notifyTyping } = useChatSocket(
+    conversationId,
+    {
+      enabled: Boolean(conversationId),
+      selfUserId: user?.id ?? null,
+      onMessage: (msg) => mergeMessageRef.current(msg),
+    },
+  );
+
+  const {
+    messages,
+    loading,
+    error,
+    errorStatus,
+    nextCursor,
+    loadEarlier,
+    send,
+    mergeMessage,
+  } = useConversationMessages(conversationId, {
+    pollWhenDisconnected: !connected,
   });
-
-  const { messages, loading, error, errorStatus, nextCursor, loadEarlier, send, mergeMessage } =
-    useConversationMessages(conversationId, { pollWhenDisconnected: !connected });
 
   useEffect(() => {
     mergeMessageRef.current = mergeMessage;
@@ -81,12 +96,16 @@ export default function ParentChatThreadPage() {
     router.replace("/parent/chat");
   }, [errorStatus, error, router]);
 
-  const activeConversation = conversations.find((item) => item.id === conversationId);
+  const activeConversation = conversations.find(
+    (item) => item.id === conversationId,
+  );
   const activePreview = activeConversation
     ? toChatPreview(activeConversation, "parent")
     : null;
   const peerName = activePreview?.name ?? "Tutor";
-  const sidebarChats = conversations.map((item) => toChatPreview(item, "parent"));
+  const sidebarChats = conversations.map((item) =>
+    toChatPreview(item, "parent"),
+  );
   const isHired = hires.some((hire) => hire.conversationId === conversationId);
 
   function handleSend(event: FormEvent) {
@@ -94,7 +113,9 @@ export default function ParentChatThreadPage() {
     const trimmed = message.trim();
     if (!trimmed) return;
     setMessage("");
-    void send(trimmed).catch((err) => toastApiError(err, "Could not send message"));
+    void send(trimmed).catch((err) =>
+      toastApiError(err, "Could not send message"),
+    );
   }
 
   return (
@@ -118,29 +139,30 @@ export default function ParentChatThreadPage() {
             href="/parent/chat"
             className={cn(
               buttonVariants({ variant: "ghost", size: "icon" }),
-              "size-10 lg:hidden"
+              "size-10 lg:hidden",
             )}
-            aria-label="Back to messages"
-          >
+            aria-label="Back to messages">
             ←
           </Link>
           <Avatar className="size-10 md:size-11">
             <AvatarFallback
               className="bg-accent text-accent-foreground"
-              aria-label={`Tutor ${peerName}`}
-            >
+              aria-label={`Tutor ${peerName}`}>
               {peerInitials(peerName)}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <Typography variant="h3" className="truncate text-sm tracking-tight md:text-base">
+            <Typography
+              variant="h3"
+              className="truncate text-sm tracking-tight md:text-base">
               {peerName}
             </Typography>
             <Typography
               variant="small"
-              className={peerTyping ? "text-primary italic" : undefined}
-            >
-              {peerTyping ? "Typing…" : activePreview?.requirementLabel ?? "Tuition chat"}
+              className={peerTyping ? "text-primary italic" : undefined}>
+              {peerTyping
+                ? "Typing…"
+                : (activePreview?.requirementLabel ?? "Tuition chat")}
             </Typography>
           </div>
           {conversationId ? (
@@ -148,17 +170,20 @@ export default function ParentChatThreadPage() {
               <span
                 className={cn(
                   buttonVariants({ variant: "secondary", size: "sm" }),
-                  "pointer-events-none rounded-full px-3 md:h-9 md:px-4"
-                )}
-              >
+                  "pointer-events-none rounded-full px-3 md:h-9 md:px-4",
+                )}>
                 <Typography variant="button">Hired</Typography>
               </span>
             ) : (
               <Link
                 href={`/parent/hire/${conversationId}`}
-                className={cn(buttonVariants({ size: "sm" }), "rounded-full px-3 md:h-9 md:px-4")}
-              >
-                <Typography variant="button" className="text-primary-foreground">
+                className={cn(
+                  buttonVariants({ size: "sm" }),
+                  "rounded-full px-3 md:h-9 md:px-4",
+                )}>
+                <Typography
+                  variant="button"
+                  className="text-primary-foreground">
                   Hire
                 </Typography>
               </Link>
@@ -175,11 +200,13 @@ export default function ParentChatThreadPage() {
 
         <div
           ref={scrollContainerRef}
-          className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 md:px-6 md:py-5"
-        >
+          className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 md:px-6 md:py-5">
           {nextCursor ? (
             <div className="flex justify-center">
-              <Button variant="outline" size="sm" onClick={() => void loadEarlier()}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => void loadEarlier()}>
                 <Typography variant="button">Load earlier</Typography>
               </Button>
             </div>
@@ -213,13 +240,11 @@ export default function ParentChatThreadPage() {
 
         <form
           onSubmit={handleSend}
-          className="sticky bottom-16 z-20 flex items-center gap-2 border-t border-border/50 bg-background/80 px-3 py-3 shadow-[0_-8px_24px_rgb(23_23_23/4%)] backdrop-blur-xl safe-bottom md:bottom-0 md:px-5"
-        >
+          className="sticky bottom-16 z-20 flex items-center gap-2 border-t border-border/50 bg-background/80 px-3 py-3 shadow-[0_-8px_24px_rgb(23_23_23/4%)] backdrop-blur-xl safe-bottom md:bottom-0 md:px-5">
           <button
             type="button"
             className="flex size-10 items-center justify-center rounded-2xl bg-card text-muted-foreground shadow-soft"
-            aria-label="Add attachment"
-          >
+            aria-label="Add attachment">
             <Plus className="size-5" />
           </button>
           <Input
@@ -235,8 +260,7 @@ export default function ParentChatThreadPage() {
             type="submit"
             disabled={!message.trim()}
             className="flex size-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-soft disabled:pointer-events-none disabled:opacity-50"
-            aria-label="Send message"
-          >
+            aria-label="Send message">
             <Send className="size-4" />
           </button>
         </form>

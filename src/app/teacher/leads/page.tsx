@@ -58,7 +58,9 @@ export default function TeacherLeadsPage() {
           {!loading && items.length > 0 ? (
             <Typography variant="small">
               Tip: keep{" "}
-              <Link href="/teacher/profile/edit" className="text-primary underline">
+              <Link
+                href="/teacher/profile/edit"
+                className="text-primary underline">
                 your profile
               </Link>{" "}
               complete for better matches.

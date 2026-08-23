@@ -3,7 +3,10 @@
 import { AppHeader } from "@/components/layout/app-header";
 import { PageMain } from "@/components/layout/page-main";
 import { SectionHeader } from "@/components/layout/section-header";
-import { ChatEmptyDesktopPanel, ChatInbox } from "@/components/domain/chat-inbox";
+import {
+  ChatEmptyDesktopPanel,
+  ChatInbox,
+} from "@/components/domain/chat-inbox";
 import { Typography } from "@/components/typography";
 import { useConversations } from "@/hooks/use-conversations";
 import { toChatPreview } from "@/lib/api/mappers";

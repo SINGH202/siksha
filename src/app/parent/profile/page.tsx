@@ -28,8 +28,7 @@ import { cn } from "@/lib/utils";
 export default function ParentProfilePage() {
   const { data, loading } = useProfile();
   const { user, logout } = useAuth();
-  const profile =
-    data && isParentProfileMe(data) ? data.profile : null;
+  const profile = data && isParentProfileMe(data) ? data.profile : null;
   const ready = !loading;
   const displayName = profile?.name || "Parent";
   const locality = profile?.locality || "Add locality";
@@ -72,13 +71,14 @@ export default function ParentProfilePage() {
               <Avatar className="size-20 md:size-24">
                 <AvatarFallback
                   className="bg-accent text-lg text-accent-foreground md:text-xl"
-                  aria-label={`Profile photo placeholder for ${displayName}`}
-                >
+                  aria-label={`Profile photo placeholder for ${displayName}`}>
                   {ready ? initialsFromName(displayName) : "…"}
                 </AvatarFallback>
               </Avatar>
               <div className="space-y-1">
-                <Typography variant="h2" className="text-xl tracking-tight md:text-2xl">
+                <Typography
+                  variant="h2"
+                  className="text-xl tracking-tight md:text-2xl">
                   {ready ? displayName : "Loading…"}
                 </Typography>
                 <Typography variant="muted">Parent account</Typography>
@@ -102,8 +102,7 @@ export default function ParentProfilePage() {
             </div>
             <Link
               href="/parent/profile/edit"
-              className={cn(buttonVariants(), "h-11 w-full rounded-xl")}
-            >
+              className={cn(buttonVariants(), "h-11 w-full rounded-xl")}>
               <Pencil className="size-4" aria-hidden />
               <Typography variant="button" className="text-primary-foreground">
                 Edit details
@@ -113,8 +112,7 @@ export default function ParentProfilePage() {
               type="button"
               variant="outline"
               className="h-11 w-full rounded-xl"
-              onClick={() => logout()}
-            >
+              onClick={() => logout()}>
               <LogOut className="size-4" aria-hidden />
               <Typography variant="button">Sign out</Typography>
             </Button>
@@ -126,8 +124,7 @@ export default function ParentProfilePage() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <Link
                   href="/parent/settings"
-                  className="rounded-2xl bg-muted/40 p-3 shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:bg-muted/60 hover:shadow-lift"
-                >
+                  className="rounded-2xl bg-muted/40 p-3 shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:bg-muted/60 hover:shadow-lift">
                   <div className="mb-1 flex items-center gap-2">
                     <Bell className="size-4 text-primary" aria-hidden />
                     <Typography variant="h3" className="text-sm">
@@ -140,8 +137,7 @@ export default function ParentProfilePage() {
                 </Link>
                 <Link
                   href="/privacy"
-                  className="rounded-2xl bg-muted/40 p-3 shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:bg-muted/60 hover:shadow-lift"
-                >
+                  className="rounded-2xl bg-muted/40 p-3 shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:bg-muted/60 hover:shadow-lift">
                   <div className="mb-1 flex items-center gap-2">
                     <Shield className="size-4 text-primary" aria-hidden />
                     <Typography variant="h3" className="text-sm">

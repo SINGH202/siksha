@@ -39,7 +39,7 @@ export default function NewRequirementPage() {
     setSubjects((current) =>
       current.includes(subject)
         ? current.filter((item) => item !== subject)
-        : [...current, subject]
+        : [...current, subject],
     );
   }
 
@@ -198,7 +198,9 @@ export default function NewRequirementPage() {
         {step === 2 ? (
           <Card className="gap-3 p-4 md:p-6">
             <Label htmlFor="note">
-              <Typography variant="label">Note for teachers (optional)</Typography>
+              <Typography variant="label">
+                Note for teachers (optional)
+              </Typography>
             </Label>
             <Textarea
               id="note"
@@ -215,8 +217,7 @@ export default function NewRequirementPage() {
         <Button
           className="h-12 w-full"
           onClick={() => void next()}
-          disabled={submitting}
-        >
+          disabled={submitting}>
           <Typography variant="button" className="text-primary-foreground">
             {submitting
               ? "Submitting…"

@@ -26,7 +26,12 @@ export default async function TeacherProfilePage({ params }: PageProps) {
 
   return (
     <>
-      <AppHeader narrow title="Tutor profile" showBrand={false} backHref="/parent/browse" />
+      <AppHeader
+        narrow
+        title="Tutor profile"
+        showBrand={false}
+        backHref="/parent/browse"
+      />
       <PageMain narrow>
         <Card className="items-center gap-3 p-5 text-center md:p-8">
           <Avatar className="size-20">
@@ -40,7 +45,9 @@ export default async function TeacherProfilePage({ params }: PageProps) {
           </Avatar>
           <div className="space-y-2">
             <div className="flex flex-wrap items-center justify-center gap-2">
-              <Typography variant="h2" className="text-xl tracking-tight md:text-2xl">
+              <Typography
+                variant="h2"
+                className="text-xl tracking-tight md:text-2xl">
                 {teacher.name}
               </Typography>
               {teacher.verified ? <VerifiedBadge /> : null}
@@ -61,7 +68,10 @@ export default async function TeacherProfilePage({ params }: PageProps) {
           <Typography variant="label">Subjects</Typography>
           <div className="flex flex-wrap gap-2">
             {teacher.subjects.map((subject) => (
-              <Badge key={subject} variant="secondary" className="h-7 bg-accent">
+              <Badge
+                key={subject}
+                variant="secondary"
+                className="h-7 bg-accent">
                 <Typography variant="small" className="text-accent-foreground">
                   {subject}
                 </Typography>
@@ -90,8 +100,7 @@ export default async function TeacherProfilePage({ params }: PageProps) {
       <StickyCta narrow>
         <Link
           href="/parent/requirements/new"
-          className={cn(buttonVariants(), "h-12 w-full rounded-xl")}
-        >
+          className={cn(buttonVariants(), "h-12 w-full rounded-xl")}>
           <Typography variant="button" className="text-primary-foreground">
             Send request
           </Typography>

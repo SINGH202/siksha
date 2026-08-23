@@ -30,7 +30,12 @@ export default function ParentHomePage() {
 
   return (
     <>
-      <AppHeader showMenu showNotifications title="Dashboard" hideDesktopTitle />
+      <AppHeader
+        showMenu
+        showNotifications
+        title="Dashboard"
+        hideDesktopTitle
+      />
       <PageMain>
         <ResponseTimePromise className="md:max-w-xl" />
 
@@ -54,8 +59,10 @@ export default function ParentHomePage() {
             </Typography>
             <Link
               href="/parent/requirements/new"
-              className={cn(buttonVariants({ size: "lg" }), "inline-flex px-5")}
-            >
+              className={cn(
+                buttonVariants({ size: "lg" }),
+                "inline-flex px-5",
+              )}>
               <Plus className="size-4" />
               <Typography variant="button" className="text-primary-foreground">
                 Post a requirement
@@ -84,14 +91,12 @@ export default function ParentHomePage() {
               <div className="space-y-1">
                 <Typography
                   variant="h3"
-                  className="text-base text-primary-foreground"
-                >
+                  className="text-base text-primary-foreground">
                   Post a requirement
                 </Typography>
                 <Typography
                   variant="muted"
-                  className="text-sm text-primary-foreground/80"
-                >
+                  className="text-sm text-primary-foreground/80">
                   बताएं क्या चाहिए — tutors will apply
                 </Typography>
               </div>
@@ -145,8 +150,10 @@ export default function ParentHomePage() {
               action={
                 <Link
                   href="/parent/requirements"
-                  className={cn(buttonVariants({ variant: "link" }), "h-auto p-0")}
-                >
+                  className={cn(
+                    buttonVariants({ variant: "link" }),
+                    "h-auto p-0",
+                  )}>
                   <Typography variant="link">View all</Typography>
                 </Link>
               }
@@ -180,8 +187,10 @@ export default function ParentHomePage() {
               action={
                 <Link
                   href="/parent/browse"
-                  className={cn(buttonVariants({ variant: "link" }), "h-auto p-0")}
-                >
+                  className={cn(
+                    buttonVariants({ variant: "link" }),
+                    "h-auto p-0",
+                  )}>
                   <Typography variant="link">Browse</Typography>
                 </Link>
               }

@@ -25,17 +25,14 @@ type TeacherProfileFormProps = {
   onSave: (input: UpdateTeacherProfileInput) => Promise<void>;
 };
 
-function TeacherProfileForm({
-  initial,
-  onSave,
-}: TeacherProfileFormProps) {
+function TeacherProfileForm({ initial, onSave }: TeacherProfileFormProps) {
   const [name, setName] = useState(initial.name);
   const [bio, setBio] = useState(initial.bio ?? "");
   const [subjects, setSubjects] = useState(initial.subjects);
   const [classes, setClasses] = useState(initial.classes);
   const [localities, setLocalities] = useState(initial.localities);
   const [coversAllLocalities, setCoversAllLocalities] = useState(
-    initial.coversAllLocalities
+    initial.coversAllLocalities,
   );
   const [feeMin, setFeeMin] = useState(initial.feeMin ?? 400);
   const [feeMax, setFeeMax] = useState(initial.feeMax ?? 600);
@@ -43,12 +40,12 @@ function TeacherProfileForm({
   function toggle(
     list: string[],
     item: string,
-    setter: (next: string[]) => void
+    setter: (next: string[]) => void,
   ) {
     setter(
       list.includes(item)
         ? list.filter((value) => value !== item)
-        : [...list, item]
+        : [...list, item],
     );
   }
 
@@ -190,8 +187,7 @@ export default function EditTeacherProfilePage() {
   const router = useRouter();
   const { data, loading, saveTeacher } = useProfile();
   const [submitting, setSubmitting] = useState(false);
-  const profile =
-    data && isTeacherProfileMe(data) ? data.profile : null;
+  const profile = data && isTeacherProfileMe(data) ? data.profile : null;
 
   async function handleSave(input: UpdateTeacherProfileInput) {
     setSubmitting(true);
@@ -244,8 +240,7 @@ export default function EditTeacherProfilePage() {
             form="teacher-profile-form"
             size="lg"
             className="w-full"
-            disabled={submitting}
-          >
+            disabled={submitting}>
             <Typography variant="button" className="text-primary-foreground">
               {submitting ? "Saving…" : "Save changes"}
             </Typography>

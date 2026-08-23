@@ -12,14 +12,18 @@ export function CaseStudySection({ className }: CaseStudySectionProps) {
     <section
       id="case-study"
       className={cn("space-y-4", className)}
-      aria-labelledby="case-study-heading"
-    >
-      <Typography variant="h2" id="case-study-heading" className="text-2xl tracking-tight">
+      aria-labelledby="case-study-heading">
+      <Typography
+        variant="h2"
+        id="case-study-heading"
+        className="text-2xl tracking-tight">
         Case study
       </Typography>
       <Card className="gap-5 border-border/50 p-5 md:p-7">
         <div className="space-y-2">
-          <Typography variant="h3" className="text-lg tracking-tight md:text-xl">
+          <Typography
+            variant="h3"
+            className="text-lg tracking-tight md:text-xl">
             {caseStudy.title}
           </Typography>
           <Typography variant="small">
@@ -44,8 +48,7 @@ export function CaseStudySection({ className }: CaseStudySectionProps) {
           {caseStudy.metrics.map((metric) => (
             <div
               key={metric.label}
-              className="rounded-2xl bg-accent/60 px-3 py-3 text-center shadow-soft"
-            >
+              className="rounded-2xl bg-accent/60 px-3 py-3 text-center shadow-soft">
               <Typography variant="h3" className="text-base text-primary">
                 {metric.value}
               </Typography>

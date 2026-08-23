@@ -67,15 +67,22 @@ export default function HireReviewPage() {
 
   return (
     <>
-      <AppHeader narrow title="Hire & review" showBrand={false} backHref={backHref} />
+      <AppHeader
+        narrow
+        title="Hire & review"
+        showBrand={false}
+        backHref={backHref}
+      />
       <PageMain narrow>
         <Card className="gap-3 p-4 md:p-6">
-          <Typography variant="h3" className="text-base tracking-tight md:text-lg">
+          <Typography
+            variant="h3"
+            className="text-base tracking-tight md:text-lg">
             Mark {peerName} as hired?
           </Typography>
           <Typography variant="muted">
-            This unlocks reviews and helps other parents trust Siksha. Tuition fees
-            stay between you and the teacher for now.
+            This unlocks reviews and helps other parents trust Siksha. Tuition
+            fees stay between you and the teacher for now.
           </Typography>
         </Card>
 
@@ -91,8 +98,7 @@ export default function HireReviewPage() {
                   onClick={() => setRating(value)}
                   className="rounded-lg p-1"
                   aria-label={`${value} stars`}
-                  disabled={submitting}
-                >
+                  disabled={submitting}>
                   <Star
                     className={`size-7 ${
                       value <= rating
@@ -118,8 +124,7 @@ export default function HireReviewPage() {
         <Button
           className="h-12 w-full rounded-xl"
           onClick={() => void onConfirm()}
-          disabled={submitting || !conversationId}
-        >
+          disabled={submitting || !conversationId}>
           <Typography variant="button" className="text-primary-foreground">
             {submitting ? "Confirming…" : "Confirm hire"}
           </Typography>

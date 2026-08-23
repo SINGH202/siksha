@@ -40,7 +40,7 @@ export function HelpCenterContent({
     return topics.filter(
       (topic) =>
         topic.title.toLowerCase().includes(normalized) ||
-        topic.body.toLowerCase().includes(normalized)
+        topic.body.toLowerCase().includes(normalized),
     );
   }, [debouncedQuery, topics]);
 
@@ -60,7 +60,8 @@ export function HelpCenterContent({
         {filtered.length === 0 ? (
           <Card className="border-dashed border-border/80 p-8 text-center shadow-none">
             <Typography variant="muted">
-              No matching articles. Try another keyword or email {siteConfig.email}.
+              No matching articles. Try another keyword or email{" "}
+              {siteConfig.email}.
             </Typography>
           </Card>
         ) : (
@@ -69,21 +70,21 @@ export function HelpCenterContent({
             return (
               <Card
                 key={topic.id}
-                className="gap-0 overflow-hidden border-border/50 p-0 transition-all duration-200 hover:border-primary/15 hover:shadow-lift"
-              >
+                className="gap-0 overflow-hidden border-border/50 p-0 transition-all duration-200 hover:border-primary/15 hover:shadow-lift">
                 <button
                   type="button"
                   className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left"
                   aria-expanded={open}
-                  onClick={() => setOpenId(open ? null : topic.id)}
-                >
-                  <Typography variant="h3" className="text-sm tracking-tight md:text-base">
+                  onClick={() => setOpenId(open ? null : topic.id)}>
+                  <Typography
+                    variant="h3"
+                    className="text-sm tracking-tight md:text-base">
                     {topic.title}
                   </Typography>
                   <ChevronDown
                     className={cn(
                       "size-4 shrink-0 text-muted-foreground transition-transform duration-200",
-                      open && "rotate-180"
+                      open && "rotate-180",
                     )}
                     aria-hidden
                   />
@@ -107,8 +108,7 @@ export function HelpCenterContent({
           Email {siteConfig.email} or call {siteConfig.phoneDisplay}. Read our{" "}
           <Link
             href={privacyHref}
-            className="font-medium text-primary underline-offset-4 hover:underline"
-          >
+            className="font-medium text-primary underline-offset-4 hover:underline">
             privacy policy
           </Link>
           .

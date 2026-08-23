@@ -12,7 +12,7 @@ type MapsDirectionsProps = {
 
 export function MapsDirections({ className }: MapsDirectionsProps) {
   const query = encodeURIComponent(
-    `${siteConfig.address.street}, ${siteConfig.city}, ${siteConfig.state}`
+    `${siteConfig.address.street}, ${siteConfig.city}, ${siteConfig.state}`,
   );
   const embedSrc = `https://maps.google.com/maps?q=${query}&z=13&output=embed`;
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${siteConfig.geo.lat},${siteConfig.geo.lng}`;
@@ -21,9 +21,11 @@ export function MapsDirections({ className }: MapsDirectionsProps) {
     <section
       id="location"
       className={cn("space-y-4", className)}
-      aria-labelledby="location-heading"
-    >
-      <Typography variant="h2" id="location-heading" className="text-2xl tracking-tight">
+      aria-labelledby="location-heading">
+      <Typography
+        variant="h2"
+        id="location-heading"
+        className="text-2xl tracking-tight">
         Maps & directions
       </Typography>
       <Card className="gap-4 overflow-hidden border-border/50 p-0">
@@ -46,8 +48,7 @@ export function MapsDirections({ className }: MapsDirectionsProps) {
             href={directionsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className={cn(buttonVariants({ variant: "outline" }), "h-10")}
-          >
+            className={cn(buttonVariants({ variant: "outline" }), "h-10")}>
             <Navigation className="size-4" aria-hidden />
             <Typography variant="button">Get directions</Typography>
             <ExternalLink className="size-3.5" aria-hidden />

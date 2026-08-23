@@ -57,10 +57,7 @@ export default function ThankYouPage() {
       />
       <div className="mx-auto flex min-h-[calc(100dvh-8rem)] w-full max-w-5xl flex-col px-4 py-6 sm:py-8 md:px-8 md:py-12 lg:px-10">
         <Breadcrumbs
-          items={[
-            { label: "Home", href: "/" },
-            { label: "Thank you" },
-          ]}
+          items={[{ label: "Home", href: "/" }, { label: "Thank you" }]}
           className="mb-6 md:mb-8"
         />
 
@@ -73,7 +70,9 @@ export default function ThankYouPage() {
               <Typography variant="h1" className="text-3xl md:text-4xl">
                 Thank you — inquiry received
               </Typography>
-              <Typography variant="muted" className="mx-auto max-w-xl text-base lg:mx-0">
+              <Typography
+                variant="muted"
+                className="mx-auto max-w-xl text-base lg:mx-0">
                 Your tuition requirement is live for verified teachers in{" "}
                 {siteConfig.city}. We will notify you when tutors apply.
               </Typography>
@@ -81,10 +80,14 @@ export default function ThankYouPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
               <Link
                 href="/parent/home"
-                className={cn(buttonVariants(), "h-11 rounded-xl px-5 md:h-12")}
-              >
+                className={cn(
+                  buttonVariants(),
+                  "h-11 rounded-xl px-5 md:h-12",
+                )}>
                 <Home className="size-4" aria-hidden />
-                <Typography variant="button" className="text-primary-foreground">
+                <Typography
+                  variant="button"
+                  className="text-primary-foreground">
                   Go to dashboard
                 </Typography>
               </Link>
@@ -92,9 +95,8 @@ export default function ThankYouPage() {
                 href="/parent/chat"
                 className={cn(
                   buttonVariants({ variant: "outline" }),
-                  "h-11 rounded-xl px-5 md:h-12"
-                )}
-              >
+                  "h-11 rounded-xl px-5 md:h-12",
+                )}>
                 <MessageCircle className="size-4" aria-hidden />
                 <Typography variant="button">Open messages</Typography>
               </Link>
@@ -125,8 +127,7 @@ export default function ThankYouPage() {
               return (
                 <Card
                   key={step.title}
-                  className="flex-row items-start gap-3 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift md:p-5"
-                >
+                  className="flex-row items-start gap-3 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift md:p-5">
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-accent text-accent-foreground shadow-soft">
                     <Icon className="size-5" aria-hidden />
                   </span>
