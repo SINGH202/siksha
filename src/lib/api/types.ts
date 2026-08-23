@@ -1,4 +1,5 @@
-export type UserRole = "parent" | "teacher";
+export type UserRole = "parent" | "teacher" | "admin";
+export type SelectableRole = "parent" | "teacher";
 
 export type PublicUser = {
   id: string;
@@ -64,11 +65,17 @@ export type TeacherProfileMe = {
   user: PublicUser & { role: "teacher" };
   profile: TeacherProfile | null;
   isComplete: boolean;
+  photoUrl: string | null;
 };
 
 export type ProfileMeResponse =
   | ParentProfileMe
   | TeacherProfileMe
+  | {
+      user: PublicUser & { role: "admin" };
+      profile: null;
+      isComplete: false;
+    }
   | {
       user: PublicUser & { role: null };
       profile: null;

@@ -68,6 +68,7 @@ export function useProfile() {
         user: current.user,
         profile: result.profile,
         isComplete: result.isComplete,
+        photoUrl: current.photoUrl ?? null,
       };
     });
     return result;

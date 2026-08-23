@@ -115,5 +115,6 @@ export function clearSession() {
 export function homePathForRole(role: PublicUser["role"]): string {
   if (role === "teacher") return "/teacher/home";
   if (role === "parent") return "/parent/home";
+  if (role === "admin") return "/admin/verifications";
   return "/role";
 }

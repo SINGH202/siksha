@@ -15,7 +15,7 @@ import {
   toastApiError,
   useAuth,
 } from "@/hooks/use-auth";
-import type { UserRole } from "@/lib/api/types";
+import type { SelectableRole } from "@/lib/api/types";
 
 function RoleSelectContent() {
   const router = useRouter();
@@ -27,7 +27,7 @@ function RoleSelectContent() {
     }
   }, [user?.role, router]);
 
-  async function onSelect(role: UserRole) {
+  async function onSelect(role: SelectableRole) {
     try {
       const result = await chooseRole(role);
       toast.success(

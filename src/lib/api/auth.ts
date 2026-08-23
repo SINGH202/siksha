@@ -2,8 +2,8 @@ import { apiRequest } from "@/lib/api/client";
 import type {
   AuthTokensResponse,
   RequestOtpResponse,
+  SelectableRole,
   SetRoleResponse,
-  UserRole,
 } from "@/lib/api/types";
 
 export function requestOtp(phone: string) {
@@ -31,7 +31,7 @@ export function refreshSession(refreshToken: string) {
   });
 }
 
-export function setRole(role: UserRole) {
+export function setRole(role: SelectableRole) {
   return apiRequest<SetRoleResponse>("/auth/role", {
     method: "POST",
     body: { role },

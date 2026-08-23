@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 import { ApiError } from "@/lib/api/client";
 import * as authApi from "@/lib/api/auth";
-import type { PublicUser, UserRole } from "@/lib/api/types";
+import type { PublicUser, SelectableRole, UserRole } from "@/lib/api/types";
 import { toE164Phone } from "@/lib/auth/phone";
 import {
   clearSession,
@@ -107,7 +107,7 @@ export function useAuth() {
     }
   }, []);
 
-  const chooseRole = useCallback(async (role: UserRole) => {
+  const chooseRole = useCallback(async (role: SelectableRole) => {
     setPending(true);
     try {
       const result = await authApi.setRole(role);
