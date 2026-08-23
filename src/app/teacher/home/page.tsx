@@ -25,7 +25,12 @@ export default function TeacherHomePage() {
 
   return (
     <>
-      <AppHeader showMenu showNotifications title="Dashboard" hideDesktopTitle />
+      <AppHeader
+        showMenu
+        showNotifications
+        title="Dashboard"
+        hideDesktopTitle
+      />
       <PageMain>
         <div className="space-y-1.5 md:hidden">
           <Typography variant="h2" className="tracking-tight">
@@ -43,14 +48,13 @@ export default function TeacherHomePage() {
                 Namaste, {displayName}
               </Typography>
               <Typography variant="muted" className="max-w-xl text-base">
-                Review matching Class 8–12 home tuition leads and apply with your
-                fee and availability.
+                Review matching Class 8–12 home tuition leads and apply with
+                your fee and availability.
               </Typography>
             </div>
             <Link
               href="/teacher/leads"
-              className={cn(buttonVariants({ size: "lg" }), "shrink-0 px-5")}
-            >
+              className={cn(buttonVariants({ size: "lg" }), "shrink-0 px-5")}>
               <Typography variant="button" className="text-primary-foreground">
                 View all leads
               </Typography>
@@ -61,15 +65,16 @@ export default function TeacherHomePage() {
 
         <Link
           href={isComplete ? "/teacher/verification" : "/teacher/profile/edit"}
-          className="block md:max-w-xl"
-        >
+          className="block md:max-w-xl">
           <Card className="flex-row items-center gap-3 border-secondary/40 bg-secondary/35 p-4 shadow-none transition-all duration-200 hover:border-secondary/60 hover:shadow-soft">
             <span className="flex size-11 items-center justify-center rounded-2xl bg-card text-secondary-foreground shadow-soft">
               <BadgeCheck className="size-5" />
             </span>
             <div className="min-w-0 flex-1">
               <Typography variant="h3" className="text-sm tracking-tight">
-                {isComplete ? "Profile ready for leads" : "Complete your profile"}
+                {isComplete
+                  ? "Profile ready for leads"
+                  : "Complete your profile"}
               </Typography>
               <Typography variant="small">
                 {isComplete
@@ -90,9 +95,8 @@ export default function TeacherHomePage() {
                 href="/teacher/leads"
                 className={cn(
                   buttonVariants({ variant: "link" }),
-                  "h-auto p-0 md:hidden"
-                )}
-              >
+                  "h-auto p-0 md:hidden",
+                )}>
                 <Typography variant="link">See all</Typography>
               </Link>
             }

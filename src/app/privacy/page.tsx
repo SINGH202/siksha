@@ -64,10 +64,7 @@ export default function PrivacyPage() {
       />
       <article className="mx-auto max-w-3xl px-4 py-8 md:px-8 md:py-12">
         <Breadcrumbs
-          items={[
-            { label: "Home", href: "/" },
-            { label: "Privacy policy" },
-          ]}
+          items={[{ label: "Home", href: "/" }, { label: "Privacy policy" }]}
           className="mb-6 md:mb-8"
         />
 
@@ -76,8 +73,9 @@ export default function PrivacyPage() {
             Privacy policy
           </Typography>
           <Typography variant="muted" className="max-w-2xl text-base">
-            Last updated: 10 August 2026. This policy explains how {siteConfig.name}{" "}
-            handles information for the {siteConfig.city} home tuition marketplace.
+            Last updated: 10 August 2026. This policy explains how{" "}
+            {siteConfig.name} handles information for the {siteConfig.city} home
+            tuition marketplace.
           </Typography>
         </Card>
 
@@ -92,7 +90,9 @@ export default function PrivacyPage() {
                 <Typography variant="h2" className="text-xl">
                   {section.title}
                 </Typography>
-                <Typography variant="bodyMedium" className="leading-relaxed text-muted-foreground">
+                <Typography
+                  variant="bodyMedium"
+                  className="leading-relaxed text-muted-foreground">
                   {section.body}
                 </Typography>
               </Card>

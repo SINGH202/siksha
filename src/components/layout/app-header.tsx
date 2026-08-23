@@ -34,23 +34,24 @@ export function AppHeader({
   subtitle,
   narrow = false,
 }: AppHeaderProps) {
-  const showDesktopTitleBlock = !hideDesktopTitle && (Boolean(title) || showBrand);
+  const showDesktopTitleBlock =
+    !hideDesktopTitle && (Boolean(title) || showBrand);
 
   return (
     <header
       className={cn(
         "sticky top-0 z-30 border-b border-border/50 bg-background/80 backdrop-blur-xl",
-        className
-      )}
-    >
+        className,
+      )}>
       <div
         className={cn(
           "mx-auto flex w-full items-center gap-2 px-4",
-          subtitle && !hideDesktopTitle ? "min-h-14 py-2.5 md:min-h-16 md:py-3" : "h-14 md:h-16",
+          subtitle && !hideDesktopTitle
+            ? "min-h-14 py-2.5 md:min-h-16 md:py-3"
+            : "h-14 md:h-16",
           "md:px-8 lg:px-10",
-          narrow ? "max-w-2xl" : "max-w-6xl"
-        )}
-      >
+          narrow ? "max-w-2xl" : "max-w-6xl",
+        )}>
         <div className="flex w-10 shrink-0 items-center justify-start md:w-auto md:min-w-0">
           {backHref ? (
             <Link
@@ -58,9 +59,8 @@ export function AppHeader({
               aria-label="Go back"
               className={cn(
                 buttonVariants({ variant: "ghost", size: "icon" }),
-                "size-10 md:hidden"
-              )}
-            >
+                "size-10 md:hidden",
+              )}>
               <ChevronLeft className="size-5" />
             </Link>
           ) : null}
@@ -70,9 +70,8 @@ export function AppHeader({
               aria-label="Menu"
               className={cn(
                 buttonVariants({ variant: "ghost", size: "icon" }),
-                "size-10 md:hidden"
-              )}
-            >
+                "size-10 md:hidden",
+              )}>
               <Menu className="size-5" />
             </button>
           ) : null}
@@ -88,7 +87,9 @@ export function AppHeader({
                   ) : null}
                 </div>
               ) : showBrand ? (
-                <Typography variant="h3" className="text-lg tracking-tight text-primary">
+                <Typography
+                  variant="h3"
+                  className="text-lg tracking-tight text-primary">
                   {title ?? "Dashboard"}
                 </Typography>
               ) : null}
@@ -98,7 +99,9 @@ export function AppHeader({
 
         <div className="flex flex-1 items-center justify-center md:hidden">
           {showBrand ? (
-            <Typography variant="h3" className="text-lg tracking-tight text-primary">
+            <Typography
+              variant="h3"
+              className="text-lg tracking-tight text-primary">
               Siksha
             </Typography>
           ) : title ? (
@@ -116,9 +119,8 @@ export function AppHeader({
               aria-label="Notifications"
               className={cn(
                 buttonVariants({ variant: "ghost", size: "icon" }),
-                "size-10"
-              )}
-            >
+                "size-10",
+              )}>
               <Bell className="size-5" />
             </button>
           ) : null}

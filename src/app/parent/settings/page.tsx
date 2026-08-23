@@ -17,7 +17,7 @@ export default function ParentSettingsPage() {
 
   function update<K extends keyof typeof settings>(
     key: K,
-    next: (typeof settings)[K]
+    next: (typeof settings)[K],
   ) {
     save({ ...settings, [key]: next });
     toast.success("Settings saved");
@@ -53,7 +53,9 @@ export default function ParentSettingsPage() {
               label="Hide phone on profile"
               description="Recommended. Keep matching inside Siksha chat."
               checked={settings.hidePhoneOnProfile}
-              onCheckedChange={(checked) => update("hidePhoneOnProfile", checked)}
+              onCheckedChange={(checked) =>
+                update("hidePhoneOnProfile", checked)
+              }
             />
             <SettingsToggle
               label="Product tips"
@@ -76,17 +78,15 @@ export default function ParentSettingsPage() {
                       "inline-flex h-10 items-center rounded-xl px-4 text-sm font-medium transition-all duration-200",
                       settings.language === lang
                         ? "bg-primary text-primary-foreground shadow-soft"
-                        : "bg-card ring-1 ring-border/70 hover:bg-muted/70"
-                    )}
-                  >
+                        : "bg-card ring-1 ring-border/70 hover:bg-muted/70",
+                    )}>
                     <Typography
                       variant="button"
                       className={
                         settings.language === lang
                           ? "text-primary-foreground"
                           : "text-foreground"
-                      }
-                    >
+                      }>
                       {lang === "en" ? "English" : "हिन्दी"}
                     </Typography>
                   </button>
@@ -99,16 +99,14 @@ export default function ParentSettingsPage() {
         <div className="flex flex-col gap-2 pt-1 sm:flex-row">
           <Link
             href="/parent/profile/edit"
-            className={cn(buttonVariants(), "h-11")}
-          >
+            className={cn(buttonVariants(), "h-11")}>
             <Typography variant="button" className="text-primary-foreground">
               Edit profile details
             </Typography>
           </Link>
           <Link
             href="/parent/help"
-            className={cn(buttonVariants({ variant: "outline" }), "h-11")}
-          >
+            className={cn(buttonVariants({ variant: "outline" }), "h-11")}>
             <Typography variant="button">Open help center</Typography>
           </Link>
         </div>

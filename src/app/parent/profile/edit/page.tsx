@@ -82,8 +82,7 @@ export default function EditParentProfilePage() {
   const router = useRouter();
   const { data, loading, saveParent } = useProfile();
   const [submitting, setSubmitting] = useState(false);
-  const profile =
-    data && isParentProfileMe(data) ? data.profile : null;
+  const profile = data && isParentProfileMe(data) ? data.profile : null;
 
   async function handleSave(input: { name: string; locality?: string }) {
     setSubmitting(true);
@@ -126,8 +125,7 @@ export default function EditParentProfilePage() {
             form="parent-profile-form"
             size="lg"
             className="w-full"
-            disabled={submitting}
-          >
+            disabled={submitting}>
             <Typography variant="button" className="text-primary-foreground">
               {submitting ? "Saving…" : "Save changes"}
             </Typography>

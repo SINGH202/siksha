@@ -29,7 +29,7 @@ export default function RequirementDetailPage() {
   const { create } = useConversations();
   const [openingChatId, setOpeningChatId] = useState<string | null>(null);
   const { requirement, applications, loading, error } = useRequirementDetail(
-    params.id
+    params.id,
   );
 
   async function openChat(application: RequirementApplication) {
@@ -88,14 +88,11 @@ export default function RequirementDetailPage() {
                     status={ui.status}
                     applicantCount={applications.length}
                   />
-                  <Typography variant="small">
-                    Posted {ui.postedAgo}
-                  </Typography>
+                  <Typography variant="small">Posted {ui.postedAgo}</Typography>
                 </div>
                 <Typography
                   variant="h2"
-                  className="text-xl tracking-tight md:text-2xl"
-                >
+                  className="text-xl tracking-tight md:text-2xl">
                   {requirement.title}
                 </Typography>
               </div>
@@ -126,12 +123,10 @@ export default function RequirementDetailPage() {
                     <Badge
                       key={subject}
                       variant="secondary"
-                      className="h-7 bg-accent text-accent-foreground"
-                    >
+                      className="h-7 bg-accent text-accent-foreground">
                       <Typography
                         variant="small"
-                        className="text-accent-foreground"
-                      >
+                        className="text-accent-foreground">
                         {subject}
                       </Typography>
                     </Badge>
@@ -202,8 +197,7 @@ export default function RequirementDetailPage() {
                   return (
                     <Card
                       key={application.id}
-                      className="gap-3 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift"
-                    >
+                      className="gap-3 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift">
                       <div className="flex items-center gap-3">
                         <Avatar className="size-11 rounded-2xl">
                           <AvatarFallback className="rounded-2xl bg-accent">
@@ -213,8 +207,7 @@ export default function RequirementDetailPage() {
                         <div className="min-w-0 flex-1">
                           <Typography
                             variant="h3"
-                            className="truncate text-sm tracking-tight"
-                          >
+                            className="truncate text-sm tracking-tight">
                             {name}
                           </Typography>
                           <Typography variant="small">
@@ -233,8 +226,7 @@ export default function RequirementDetailPage() {
                         variant="outline"
                         className="h-10 w-full"
                         disabled={openingChatId === application.id}
-                        onClick={() => void openChat(application)}
-                      >
+                        onClick={() => void openChat(application)}>
                         <Typography variant="button">Open chat</Typography>
                       </Button>
                     </Card>
@@ -249,8 +241,7 @@ export default function RequirementDetailPage() {
       <StickyCta>
         <Link
           href="/parent/requirements/new"
-          className={cn(buttonVariants(), "h-12 w-full")}
-        >
+          className={cn(buttonVariants(), "h-12 w-full")}>
           <Typography variant="button" className="text-primary-foreground">
             Post another requirement
           </Typography>

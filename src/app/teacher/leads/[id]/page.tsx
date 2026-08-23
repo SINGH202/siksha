@@ -99,7 +99,9 @@ export default function TeacherLeadDetailPage() {
         {loading ? (
           <Typography variant="muted">Loading lead…</Typography>
         ) : !lead || !ui ? (
-          <Typography variant="muted">Lead not found or not available.</Typography>
+          <Typography variant="muted">
+            Lead not found or not available.
+          </Typography>
         ) : (
           <>
             <div className="space-y-2">
@@ -109,8 +111,7 @@ export default function TeacherLeadDetailPage() {
               </div>
               <Typography
                 variant="h2"
-                className="text-xl tracking-tight md:text-2xl"
-              >
+                className="text-xl tracking-tight md:text-2xl">
                 {lead.title}
               </Typography>
             </div>
@@ -122,8 +123,7 @@ export default function TeacherLeadDetailPage() {
                 </span>
                 <Typography
                   variant="h3"
-                  className="text-sm tracking-tight text-primary"
-                >
+                  className="text-sm tracking-tight text-primary">
                   Academic requirements
                 </Typography>
               </div>
@@ -143,8 +143,13 @@ export default function TeacherLeadDetailPage() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {lead.subjects.map((subject) => (
-                  <Badge key={subject} variant="secondary" className="h-7 bg-accent">
-                    <Typography variant="small" className="text-accent-foreground">
+                  <Badge
+                    key={subject}
+                    variant="secondary"
+                    className="h-7 bg-accent">
+                    <Typography
+                      variant="small"
+                      className="text-accent-foreground">
                       {subject}
                     </Typography>
                   </Badge>
@@ -176,7 +181,9 @@ export default function TeacherLeadDetailPage() {
                     {lead.schedule}
                   </Typography>
                   {lead.scheduleDetail ? (
-                    <Typography variant="muted">{lead.scheduleDetail}</Typography>
+                    <Typography variant="muted">
+                      {lead.scheduleDetail}
+                    </Typography>
                   ) : null}
                 </div>
               </div>
@@ -190,8 +197,7 @@ export default function TeacherLeadDetailPage() {
                   </span>
                   <Typography
                     variant="h3"
-                    className="text-sm tracking-tight text-primary"
-                  >
+                    className="text-sm tracking-tight text-primary">
                     Note from parent
                   </Typography>
                 </div>
@@ -206,10 +212,7 @@ export default function TeacherLeadDetailPage() {
 
       {lead ? (
         <StickyCta narrow>
-          <Button
-            className="h-12 w-full"
-            onClick={() => setOpen(true)}
-          >
+          <Button className="h-12 w-full" onClick={() => setOpen(true)}>
             <Send className="size-4" />
             <Typography variant="button" className="text-primary-foreground">
               Apply now
@@ -247,8 +250,7 @@ export default function TeacherLeadDetailPage() {
             <Button
               className="h-11 w-full"
               disabled={submitting}
-              onClick={() => void submitApplication()}
-            >
+              onClick={() => void submitApplication()}>
               <Typography variant="button" className="text-primary-foreground">
                 {submitting ? "Sending…" : "Submit application"}
               </Typography>

@@ -9,16 +9,19 @@ type PageMainProps = {
   narrow?: boolean;
 };
 
-export function PageMain({ children, className, narrow = false }: PageMainProps) {
+export function PageMain({
+  children,
+  className,
+  narrow = false,
+}: PageMainProps) {
   return (
     <main
       className={cn(
         "mx-auto flex w-full flex-1 flex-col gap-5 px-4 py-5",
         "md:gap-6 md:px-8 md:py-6 lg:px-10",
         narrow ? "max-w-2xl" : "max-w-6xl",
-        className
-      )}
-    >
+        className,
+      )}>
       {children}
     </main>
   );

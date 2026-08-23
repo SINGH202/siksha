@@ -49,16 +49,31 @@ export default function TeacherChatThreadPage() {
 
   const redirectedRef = useRef(false);
 
-  const mergeMessageRef = useRef<(message: ChatMessage) => void>(() => undefined);
+  const mergeMessageRef = useRef<(message: ChatMessage) => void>(
+    () => undefined,
+  );
 
-  const { connected, peerTyping, notifyTyping } = useChatSocket(conversationId, {
-    enabled: Boolean(conversationId),
-    selfUserId: user?.id ?? null,
-    onMessage: (msg) => mergeMessageRef.current(msg),
+  const { connected, peerTyping, notifyTyping } = useChatSocket(
+    conversationId,
+    {
+      enabled: Boolean(conversationId),
+      selfUserId: user?.id ?? null,
+      onMessage: (msg) => mergeMessageRef.current(msg),
+    },
+  );
+
+  const {
+    messages,
+    loading,
+    error,
+    errorStatus,
+    nextCursor,
+    loadEarlier,
+    send,
+    mergeMessage,
+  } = useConversationMessages(conversationId, {
+    pollWhenDisconnected: !connected,
   });
-
-  const { messages, loading, error, errorStatus, nextCursor, loadEarlier, send, mergeMessage } =
-    useConversationMessages(conversationId, { pollWhenDisconnected: !connected });
 
   useEffect(() => {
     mergeMessageRef.current = mergeMessage;
@@ -82,12 +97,16 @@ export default function TeacherChatThreadPage() {
     router.replace("/teacher/chat");
   }, [errorStatus, error, router]);
 
-  const activeConversation = conversations.find((item) => item.id === conversationId);
+  const activeConversation = conversations.find(
+    (item) => item.id === conversationId,
+  );
   const activePreview = activeConversation
     ? toChatPreview(activeConversation, "teacher")
     : null;
   const peerName = activePreview?.name ?? "Parent";
-  const sidebarChats = conversations.map((item) => toChatPreview(item, "teacher"));
+  const sidebarChats = conversations.map((item) =>
+    toChatPreview(item, "teacher"),
+  );
   const isHired = hires.some((hire) => hire.conversationId === conversationId);
 
   function handleSend(event: FormEvent) {
@@ -95,7 +114,9 @@ export default function TeacherChatThreadPage() {
     const trimmed = message.trim();
     if (!trimmed) return;
     setMessage("");
-    void send(trimmed).catch((err) => toastApiError(err, "Could not send message"));
+    void send(trimmed).catch((err) =>
+      toastApiError(err, "Could not send message"),
+    );
   }
 
   return (
@@ -119,33 +140,36 @@ export default function TeacherChatThreadPage() {
             href="/teacher/chat"
             className={cn(
               buttonVariants({ variant: "ghost", size: "icon" }),
-              "size-10 lg:hidden"
+              "size-10 lg:hidden",
             )}
-            aria-label="Back to messages"
-          >
+            aria-label="Back to messages">
             ←
           </Link>
           <Avatar className="size-10 md:size-11">
             <AvatarFallback
               className="bg-accent text-accent-foreground"
-              aria-label={`Parent ${peerName}`}
-            >
+              aria-label={`Parent ${peerName}`}>
               {peerInitials(peerName)}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <Typography variant="h3" className="truncate text-sm tracking-tight md:text-base">
+            <Typography
+              variant="h3"
+              className="truncate text-sm tracking-tight md:text-base">
               {peerName}
             </Typography>
             <Typography
               variant="small"
-              className={peerTyping ? "text-primary italic" : undefined}
-            >
-              {peerTyping ? "Typing…" : activePreview?.requirementLabel ?? "Tuition chat"}
+              className={peerTyping ? "text-primary italic" : undefined}>
+              {peerTyping
+                ? "Typing…"
+                : (activePreview?.requirementLabel ?? "Tuition chat")}
             </Typography>
           </div>
           {isHired ? (
-            <Badge variant="secondary" className="h-6 bg-accent text-accent-foreground">
+            <Badge
+              variant="secondary"
+              className="h-6 bg-accent text-accent-foreground">
               <Typography variant="small" className="text-accent-foreground">
                 Hired
               </Typography>
@@ -154,7 +178,10 @@ export default function TeacherChatThreadPage() {
         </header>
 
         <div className="flex items-center gap-2 bg-secondary/50 px-4 py-2 md:px-5">
-          <ShieldCheck className="size-4 shrink-0 text-secondary-foreground" aria-hidden />
+          <ShieldCheck
+            className="size-4 shrink-0 text-secondary-foreground"
+            aria-hidden
+          />
           <Typography variant="small" className="text-secondary-foreground">
             Keep chat on Siksha — do not share phone numbers
           </Typography>
@@ -162,11 +189,13 @@ export default function TeacherChatThreadPage() {
 
         <div
           ref={scrollContainerRef}
-          className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 md:px-6 md:py-5"
-        >
+          className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 md:px-6 md:py-5">
           {nextCursor ? (
             <div className="flex justify-center">
-              <Button variant="outline" size="sm" onClick={() => void loadEarlier()}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => void loadEarlier()}>
                 <Typography variant="button">Load earlier</Typography>
               </Button>
             </div>
@@ -200,13 +229,11 @@ export default function TeacherChatThreadPage() {
 
         <form
           onSubmit={handleSend}
-          className="sticky bottom-16 z-20 flex items-center gap-2 border-t border-border/50 bg-background/80 px-3 py-3 backdrop-blur-xl md:bottom-0 md:px-5"
-        >
+          className="sticky bottom-16 z-20 flex items-center gap-2 border-t border-border/50 bg-background/80 px-3 py-3 backdrop-blur-xl md:bottom-0 md:px-5">
           <button
             type="button"
             className="flex size-10 items-center justify-center rounded-2xl bg-card text-muted-foreground shadow-soft"
-            aria-label="Add attachment"
-          >
+            aria-label="Add attachment">
             <Plus className="size-5" />
           </button>
           <Input
@@ -222,8 +249,7 @@ export default function TeacherChatThreadPage() {
             type="submit"
             disabled={!message.trim()}
             className="flex size-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-soft disabled:pointer-events-none disabled:opacity-50"
-            aria-label="Send message"
-          >
+            aria-label="Send message">
             <Send className="size-4" />
           </button>
         </form>
