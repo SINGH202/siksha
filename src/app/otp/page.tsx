@@ -96,13 +96,7 @@ function OtpForm() {
             </div>
 
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Typography variant="label">Enter 6-digit OTP</Typography>
-                <Typography variant="small">
-                  {String(Math.floor(seconds / 60)).padStart(2, "0")}:
-                  {String(seconds % 60).padStart(2, "0")}
-                </Typography>
-              </div>
+              <Typography variant="label">Enter 6-digit OTP</Typography>
               <InputOTP
                 maxLength={6}
                 value={otp}
@@ -114,15 +108,22 @@ function OtpForm() {
                   ))}
                 </InputOTPGroup>
               </InputOTP>
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  className="disabled:opacity-40"
-                  disabled={seconds > 0 || pending}
-                  onClick={() => void resend()}
-                >
-                  <Typography variant="link">Resend OTP</Typography>
-                </button>
+              <div className="flex items-center justify-between gap-3">
+                <Typography variant="muted">Didn&apos;t get the code?</Typography>
+                {seconds > 0 ? (
+                  <Typography variant="small">
+                    Resend in {String(Math.floor(seconds / 60)).padStart(2, "0")}
+                    :{String(seconds % 60).padStart(2, "0")}
+                  </Typography>
+                ) : (
+                  <button
+                    type="button"
+                    className="disabled:opacity-40"
+                    disabled={pending}
+                    onClick={() => void resend()}>
+                    <Typography variant="link">Resend OTP</Typography>
+                  </button>
+                )}
               </div>
             </div>
 

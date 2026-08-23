@@ -7,7 +7,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
 import { ChatBubble } from "@/components/domain/chat-bubble";
-import { ChatInbox } from "@/components/domain/chat-inbox";
+import { ChatInbox, ChatThreadSkeleton } from "@/components/domain/chat-inbox";
 import { Typography } from "@/components/typography";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -212,9 +212,7 @@ export default function ParentChatThreadPage() {
             </div>
           ) : null}
 
-          {loading && messages.length === 0 ? (
-            <Typography variant="muted">Loading messages…</Typography>
-          ) : null}
+          {loading && messages.length === 0 ? <ChatThreadSkeleton /> : null}
 
           {error ? (
             <Typography variant="muted" className="text-destructive">
@@ -240,7 +238,7 @@ export default function ParentChatThreadPage() {
 
         <form
           onSubmit={handleSend}
-          className="sticky bottom-16 z-20 flex items-center gap-2 border-t border-border/50 bg-background/80 px-3 py-3 shadow-[0_-8px_24px_rgb(23_23_23/4%)] backdrop-blur-xl safe-bottom md:bottom-0 md:px-5">
+          className="sticky z-20 flex items-center gap-2 border-t border-border/50 bg-background/95 px-3 py-3 shadow-[0_-8px_24px_rgb(23_23_23/4%)] backdrop-blur-xl md:px-5 bottom-[calc(var(--app-bottom-nav)+env(safe-area-inset-bottom,0px))] md:bottom-0">
           <button
             type="button"
             className="flex size-10 items-center justify-center rounded-2xl bg-card text-muted-foreground shadow-soft"

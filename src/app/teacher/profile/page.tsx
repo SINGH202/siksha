@@ -23,6 +23,7 @@ import { Typography } from "@/components/typography";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { initialsFromName } from "@/hooks/use-account";
 import { toastApiError, useAuth } from "@/hooks/use-auth";
 import { useProfile } from "@/hooks/use-profile";
@@ -149,42 +150,42 @@ export default function TeacherProfilePage() {
                   void handlePhotoChange(event.target.files?.[0]);
                 }}
               />
-              <div className="flex flex-wrap items-center justify-center gap-2 lg:justify-start">
-                <Button
-                  type="button"
-                  className="h-9 rounded-xl"
-                  disabled={uploading}
-                  onClick={() => fileInputRef.current?.click()}>
-                  <Typography
-                    variant="button"
-                    className="text-primary-foreground">
-                    Change photo
-                  </Typography>
-                </Button>
-                {hasPhoto ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-9 rounded-xl"
-                    disabled={uploading}
-                    onClick={() => {
-                      void handleRemovePhoto();
-                    }}>
-                    <Typography variant="button">Remove photo</Typography>
-                  </Button>
-                ) : null}
-              </div>
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center justify-center gap-2 lg:justify-start">
-                  <Typography
-                    variant="h2"
-                    className="text-xl tracking-tight md:text-2xl">
-                    {ready ? displayName : "Loading…"}
-                  </Typography>
+                  {ready ? (
+                    <Typography
+                      variant="h2"
+                      className="text-xl tracking-tight md:text-2xl">
+                      {displayName}
+                    </Typography>
+                  ) : (
+                    <Skeleton className="h-8 w-40" />
+                  )}
                   {verified ? <VerifiedBadge /> : null}
                 </div>
                 <Typography variant="muted">Teacher account</Typography>
               </div>
+              {hasPhoto ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="h-9"
+                  disabled={uploading}
+                  onClick={() => {
+                    void handleRemovePhoto();
+                  }}>
+                  <Typography variant="button">Remove photo</Typography>
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-9"
+                  disabled={uploading}
+                  onClick={() => fileInputRef.current?.click()}>
+                  <Typography variant="button">Add photo</Typography>
+                </Button>
+              )}
             </div>
             <div className="space-y-2 rounded-xl bg-muted/50 p-3 text-left">
               <div className="flex items-center gap-2 text-muted-foreground">
@@ -220,8 +221,8 @@ export default function TeacherProfilePage() {
             </Link>
             <Button
               type="button"
-              variant="outline"
-              className="h-11 w-full rounded-xl"
+              variant="ghost"
+              className="h-11 w-full"
               onClick={() => logout()}>
               <LogOut className="size-4" aria-hidden />
               <Typography variant="button">Sign out</Typography>

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { ArrowRight, Clock3, Plus, Search } from "lucide-react";
 
-import { CompactTeacherCard } from "@/components/domain/compact-teacher-card";
 import { RequirementCard } from "@/components/domain/requirement-card";
 import { TrustBanner } from "@/components/domain/trust-banner";
 import { AppHeader } from "@/components/layout/app-header";
@@ -13,26 +12,26 @@ import { ResponseTimePromise } from "@/components/seo/response-time-promise";
 import { Typography } from "@/components/typography";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useProfile } from "@/hooks/use-profile";
 import { useMyRequirements } from "@/hooks/use-requirements";
 import { toUiRequirement } from "@/lib/api/mappers";
-import { teachers } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
 export default function ParentHomePage() {
   const { data } = useProfile();
   const { items, loading } = useMyRequirements();
-  const recommended = teachers.filter((teacher) => teacher.verified);
-  const displayName =
+  const firstName =
     data?.user.role === "parent" && data.profile?.name
       ? data.profile.name.split(" ")[0]
-      : "there";
+      : null;
+  const greeting = firstName ? `Namaste, ${firstName}` : "Namaste";
 
   return (
     <>
       <AppHeader
-        showMenu
         showNotifications
+        notificationsHref="/parent/settings"
         title="Dashboard"
         hideDesktopTitle
       />
@@ -41,7 +40,7 @@ export default function ParentHomePage() {
 
         <div className="space-y-1.5 md:hidden">
           <Typography variant="h2" className="tracking-tight">
-            Namaste, {displayName}
+            {greeting}
           </Typography>
           <Typography variant="muted">
             Find a trusted home tutor for Classes 8–12 in Farrukhabad.
@@ -73,7 +72,7 @@ export default function ParentHomePage() {
             <div className="absolute -right-8 -top-8 size-40 rounded-full border border-primary/10 bg-card/30" />
             <div className="relative flex h-full flex-col justify-end gap-2">
               <Typography variant="h3" className="text-primary">
-                Namaste, {displayName}
+                {greeting}
               </Typography>
               <Typography variant="muted">
                 Classes 8–12 · Home tuition
@@ -159,7 +158,15 @@ export default function ParentHomePage() {
               }
             />
             {loading ? (
-              <Typography variant="muted">Loading…</Typography>
+              <div className="space-y-3">
+                {Array.from({ length: 2 }).map((_, index) => (
+                  <Card key={index} className="gap-3 p-4">
+                    <Skeleton className="h-5 w-2/3" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-4 w-1/3" />
+                  </Card>
+                ))}
+              </div>
             ) : (
               <div className="space-y-3">
                 {items.slice(0, 5).map((requirement) => (
@@ -170,9 +177,24 @@ export default function ParentHomePage() {
                   />
                 ))}
                 {items.length === 0 ? (
-                  <Typography variant="muted">
-                    No requirements yet. Post one to get started.
-                  </Typography>
+                  <Card className="gap-3 border-dashed p-5">
+                    <Typography variant="h3" className="text-sm tracking-tight">
+                      No requirements yet
+                    </Typography>
+                    <Typography variant="muted">
+                      Post one and matching tutors in Farrukhabad can apply.
+                    </Typography>
+                    <Link
+                      href="/parent/requirements/new"
+                      className={cn(buttonVariants(), "h-10 w-full sm:w-auto")}>
+                      <Plus className="size-4" />
+                      <Typography
+                        variant="button"
+                        className="text-primary-foreground">
+                        Post a requirement
+                      </Typography>
+                    </Link>
+                  </Card>
                 ) : null}
               </div>
             )}
@@ -182,28 +204,26 @@ export default function ParentHomePage() {
           </section>
 
           <aside className="hidden space-y-4 lg:block">
-            <SectionHeader
-              title="Recommended tutors"
-              action={
-                <Link
-                  href="/parent/browse"
-                  className={cn(
-                    buttonVariants({ variant: "link" }),
-                    "h-auto p-0",
-                  )}>
-                  <Typography variant="link">Browse</Typography>
-                </Link>
-              }
-            />
-            <div className="space-y-3">
-              {recommended.map((teacher) => (
-                <CompactTeacherCard
-                  key={teacher.id}
-                  teacher={teacher}
-                  href={`/parent/teachers/${teacher.id}`}
-                />
-              ))}
-            </div>
+            <SectionHeader title="How matching works" />
+            <Card className="gap-3 p-5">
+              <Typography variant="h3" className="text-sm tracking-tight">
+                Tutors apply to your posts
+              </Typography>
+              <Typography variant="muted">
+                Real teachers in Farrukhabad show up after they apply. Post a
+                requirement to start matching.
+              </Typography>
+              <Link
+                href="/parent/requirements/new"
+                className={cn(buttonVariants(), "h-10 w-full")}>
+                <Plus className="size-4" />
+                <Typography
+                  variant="button"
+                  className="text-primary-foreground">
+                  Post a requirement
+                </Typography>
+              </Link>
+            </Card>
             <TrustBanner />
           </aside>
         </div>

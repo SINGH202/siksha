@@ -17,8 +17,8 @@ export function BottomNav({ role }: BottomNavProps) {
   const items = getNavItems(role, "mobile");
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-card/90 shadow-[0_-8px_24px_rgb(23_23_23/4%)] backdrop-blur-xl safe-bottom md:hidden">
-      <div className="mx-auto flex h-[4.25rem] max-w-lg items-stretch justify-around px-1.5 pt-1">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-card/95 shadow-[0_-8px_24px_rgb(23_23_23/4%)] backdrop-blur-xl safe-bottom md:hidden">
+      <div className="mx-auto flex h-[var(--app-bottom-nav)] max-w-lg items-stretch justify-around px-1.5 pt-1">
         {items.map((item) => {
           const Icon = item.icon;
           const active =

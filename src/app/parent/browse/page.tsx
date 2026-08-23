@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 
 import { FilterChip } from "@/components/domain/filter-chip";
 import { TeacherCard } from "@/components/domain/teacher-card";
+import { TrustBanner } from "@/components/domain/trust-banner";
 import { AppHeader } from "@/components/layout/app-header";
 import { PageMain } from "@/components/layout/page-main";
 import { SectionHeader } from "@/components/layout/section-header";
@@ -40,8 +41,8 @@ export default function BrowseTeachersPage() {
   return (
     <>
       <AppHeader
-        showMenu
         showNotifications
+        notificationsHref="/parent/settings"
         backHref="/parent/home"
         title="Browse tutors"
         subtitle="Verified home tutors in Farrukhabad"
@@ -75,9 +76,14 @@ export default function BrowseTeachersPage() {
           ))}
         </div>
 
+        <TrustBanner
+          title="Matching starts with a requirement"
+          description="These are sample profiles. Post what you need so real Farrukhabad tutors can apply."
+        />
+
         <SectionHeader
-          title={`${filtered.length} tutors near Farrukhabad`}
-          description="Verified home tutors in your area"
+          title={`${filtered.length} sample tutors near Farrukhabad`}
+          description="Preview the kind of teachers who apply after you post"
         />
 
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">

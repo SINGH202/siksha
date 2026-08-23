@@ -6,6 +6,7 @@ import { SectionHeader } from "@/components/layout/section-header";
 import {
   ChatEmptyDesktopPanel,
   ChatInbox,
+  ChatInboxSkeleton,
 } from "@/components/domain/chat-inbox";
 import { Typography } from "@/components/typography";
 import { useConversations } from "@/hooks/use-conversations";
@@ -14,6 +15,7 @@ import { toChatPreview } from "@/lib/api/mappers";
 export default function ParentChatListPage() {
   const { items, loading, error } = useConversations();
   const previews = items.map((item) => toChatPreview(item, "parent"));
+  const inboxEmpty = !loading && previews.length === 0;
 
   return (
     <>
@@ -29,19 +31,39 @@ export default function ParentChatListPage() {
               title={`Inbox (${loading ? "…" : previews.length})`}
               className="mb-2 hidden lg:flex"
             />
-            {loading ? (
-              <Typography variant="muted">Loading conversations…</Typography>
-            ) : null}
+            {loading ? <ChatInboxSkeleton /> : null}
             {error ? (
               <Typography variant="muted" className="text-destructive">
                 {error}
               </Typography>
             ) : null}
             {!loading && !error ? (
-              <ChatInbox chats={previews} basePath="/parent/chat" />
+              <ChatInbox
+                chats={previews}
+                basePath="/parent/chat"
+                emptyAction={{
+                  href: "/parent/requirements/new",
+                  label: "Post a requirement",
+                }}
+              />
             ) : null}
           </section>
-          <ChatEmptyDesktopPanel />
+          <ChatEmptyDesktopPanel
+            title={inboxEmpty ? "No messages yet" : "Select a conversation"}
+            description={
+              inboxEmpty
+                ? "Teachers who apply to your requirements can chat here. Phone numbers stay private."
+                : undefined
+            }
+            action={
+              inboxEmpty
+                ? {
+                    href: "/parent/requirements/new",
+                    label: "Post a requirement",
+                  }
+                : undefined
+            }
+          />
         </div>
       </PageMain>
     </>

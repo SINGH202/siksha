@@ -2,18 +2,19 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ClipboardList, Plus } from "lucide-react";
 
 import { EmptyState } from "@/components/domain/empty-state";
 import { RequirementCard } from "@/components/domain/requirement-card";
 import { AppHeader } from "@/components/layout/app-header";
 import { PageMain } from "@/components/layout/page-main";
-import { SectionHeader } from "@/components/layout/section-header";
 import { Typography } from "@/components/typography";
 import { buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useMyRequirements } from "@/hooks/use-requirements";
 import { toUiRequirement } from "@/lib/api/mappers";
 import { cn } from "@/lib/utils";
-import { ClipboardList } from "lucide-react";
 
 export default function ParentRequirementsPage() {
   const router = useRouter();
@@ -26,26 +27,28 @@ export default function ParentRequirementsPage() {
         showBrand={false}
         backHref="/parent/home"
         subtitle="Track applicants and chat with tutors"
+        rightSlot={
+          <Link
+            href="/parent/requirements/new"
+            className={cn(buttonVariants({ size: "sm" }), "h-9")}>
+            <Plus className="size-3.5" aria-hidden />
+            <Typography variant="button" className="text-primary-foreground">
+              Post
+            </Typography>
+          </Link>
+        }
       />
       <PageMain>
-        <SectionHeader
-          title="Your requirements"
-          description="Track applicants and chat with tutors"
-          action={
-            <Link
-              href="/parent/requirements/new"
-              className={cn(
-                buttonVariants({ size: "sm" }),
-                "rounded-full px-3 md:h-10 md:rounded-xl md:px-4",
-              )}>
-              <Typography variant="button" className="text-primary-foreground">
-                New
-              </Typography>
-            </Link>
-          }
-        />
         {loading ? (
-          <Typography variant="muted">Loading requirements…</Typography>
+          <div className="grid gap-3 lg:grid-cols-2">
+            {Array.from({ length: 2 }).map((_, index) => (
+              <Card key={index} className="gap-3 p-4">
+                <Skeleton className="h-5 w-2/3" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-4 w-1/3" />
+              </Card>
+            ))}
+          </div>
         ) : null}
         {error ? (
           <Typography variant="muted" className="text-destructive">

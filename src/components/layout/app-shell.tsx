@@ -38,7 +38,8 @@ export function AppShell({
         className={cn(
           "relative mx-auto flex min-h-dvh w-full max-w-lg flex-col",
           "md:max-w-none md:flex-row md:items-start",
-          withBottomNav && "pb-[5.5rem] md:pb-0",
+          withBottomNav &&
+            "pb-[calc(var(--app-bottom-nav)+env(safe-area-inset-bottom,0px)+0.75rem)] md:pb-0",
           className
         )}
       >

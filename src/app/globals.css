@@ -85,6 +85,8 @@
   --chart-4: #667072;
   --chart-5: #7ecad4;
   --radius: 1rem;
+  --app-bottom-nav: 4.25rem;
+  --app-sticky-gap: 0.75rem;
   --shadow-soft: 0 1px 2px rgb(23 23 23 / 4%), 0 8px 24px rgb(23 23 23 / 5%);
   --shadow-lift: 0 2px 4px rgb(23 23 23 / 5%), 0 16px 32px rgb(10 92 99 / 10%);
   --sidebar: #ffffff;

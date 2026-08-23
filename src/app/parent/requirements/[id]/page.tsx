@@ -1,27 +1,26 @@
 "use client";
 
-import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { BookOpen, CalendarDays, MapPin, Quote } from "lucide-react";
 
+import { EmptyState } from "@/components/domain/empty-state";
 import { StatusBadge } from "@/components/domain/status-badge";
-import { StickyCta } from "@/components/domain/sticky-cta";
 import { AppHeader } from "@/components/layout/app-header";
 import { PageMain } from "@/components/layout/page-main";
 import { SectionHeader } from "@/components/layout/section-header";
 import { Typography } from "@/components/typography";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toastApiError } from "@/hooks/use-auth";
 import { useConversations } from "@/hooks/use-conversations";
 import { useRequirementDetail } from "@/hooks/use-requirements";
 import { toUiRequirement } from "@/lib/api/mappers";
 import type { RequirementApplication } from "@/lib/api/types";
-import { cn } from "@/lib/utils";
 
 export default function RequirementDetailPage() {
   const params = useParams<{ id: string }>();
@@ -78,7 +77,17 @@ export default function RequirementDetailPage() {
       />
       <PageMain>
         {loading || !ui || !requirement ? (
-          <Typography variant="muted">Loading requirement…</Typography>
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.9fr)]">
+            <Card className="gap-3 p-4">
+              <Skeleton className="h-6 w-2/3" />
+              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-20 w-full" />
+            </Card>
+            <Card className="gap-3 p-4">
+              <Skeleton className="h-5 w-1/3" />
+              <Skeleton className="h-16 w-full" />
+            </Card>
+          </div>
         ) : (
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.9fr)] lg:items-start">
             <div className="space-y-4">
@@ -180,11 +189,11 @@ export default function RequirementDetailPage() {
             <aside className="space-y-3">
               <SectionHeader title={`Applicants (${applications.length})`} />
               {applications.length === 0 ? (
-                <Card className="p-4">
-                  <Typography variant="muted">
-                    No applications yet. Teachers who match will appear here.
-                  </Typography>
-                </Card>
+                <EmptyState
+                  icon={BookOpen}
+                  title="No applications yet"
+                  description="Matching teachers will appear here after they apply."
+                />
               ) : (
                 applications.map((application) => {
                   const profile = application.teacher.teacherProfile;
@@ -238,15 +247,6 @@ export default function RequirementDetailPage() {
         )}
       </PageMain>
 
-      <StickyCta>
-        <Link
-          href="/parent/requirements/new"
-          className={cn(buttonVariants(), "h-12 w-full")}>
-          <Typography variant="button" className="text-primary-foreground">
-            Post another requirement
-          </Typography>
-        </Link>
-      </StickyCta>
     </>
   );
 }

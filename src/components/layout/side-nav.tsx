@@ -76,7 +76,7 @@ export function SideNav({ role }: SideNavProps) {
         })}
       </nav>
 
-      <div className="mt-auto space-y-1 border-t border-border/60 px-3 py-4">
+      <div className="mt-auto space-y-1 border-t border-border/60 px-3 pb-6 pt-4">
         <Link
           href={role === "parent" ? "/parent/help" : "/teacher/help"}
           className={cn(
