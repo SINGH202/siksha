@@ -15,6 +15,7 @@ export default function robots(): MetadataRoute.Robots {
           "/thank-you",
           "/parent/",
           "/teacher/",
+          "/admin/",
           "/api/",
         ],
       },
