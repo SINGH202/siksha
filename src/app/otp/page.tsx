@@ -89,11 +89,8 @@ function OtpForm() {
                 <Typography variant="bodySmall" className="font-medium">
                   {formatPhoneDisplay(phone)}
                 </Typography>
-                <Link
-                  href="/login"
-                  className="text-sm font-medium text-primary underline-offset-4 hover:underline"
-                >
-                  Edit
+                <Link href="/login">
+                  <Typography variant="link">Edit</Typography>
                 </Link>
               </div>
             </div>
@@ -106,25 +103,25 @@ function OtpForm() {
                   {String(seconds % 60).padStart(2, "0")}
                 </Typography>
               </div>
-              <InputOTP maxLength={6} value={otp} onChange={setOtp}>
-                <InputOTPGroup className="w-full justify-between gap-2">
+              <InputOTP
+                maxLength={6}
+                value={otp}
+                onChange={setOtp}
+                pushPasswordManagerStrategy="none">
+                <InputOTPGroup className="grid w-full grid-cols-6 gap-2 rounded-none">
                   {Array.from({ length: 6 }).map((_, index) => (
-                    <InputOTPSlot
-                      key={index}
-                      index={index}
-                      className="size-11 rounded-xl border bg-card sm:size-12"
-                    />
+                    <InputOTPSlot key={index} index={index} />
                   ))}
                 </InputOTPGroup>
               </InputOTP>
               <div className="flex justify-end">
                 <button
                   type="button"
-                  className="text-sm font-semibold text-primary disabled:opacity-40"
+                  className="disabled:opacity-40"
                   disabled={seconds > 0 || pending}
                   onClick={() => void resend()}
                 >
-                  Resend OTP
+                  <Typography variant="link">Resend OTP</Typography>
                 </button>
               </div>
             </div>

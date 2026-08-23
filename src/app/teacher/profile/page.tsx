@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRef } from "react";
 import {
   BadgeCheck,
+  Camera,
   HelpCircle,
   IdCard,
   LogOut,
@@ -109,16 +110,35 @@ export default function TeacherProfilePage() {
         <div className="grid gap-4 md:gap-6 lg:grid-cols-[minmax(260px,340px)_minmax(0,1fr)]">
           <Card className="gap-4 p-5 text-center md:p-6 lg:text-left">
             <div className="flex flex-col items-center gap-3 lg:items-start">
-              <Avatar className="size-20 md:size-24">
-                {photoUrl ? (
-                  <AvatarImage src={photoUrl} alt="" />
+              <div className="relative">
+                <Avatar className="size-20 md:size-24">
+                  {photoUrl ? (
+                    <AvatarImage src={photoUrl} alt={displayName} />
+                  ) : null}
+                  <AvatarFallback
+                    className="bg-accent text-lg text-accent-foreground md:text-xl"
+                    aria-label={
+                      photoUrl
+                        ? `Photo of ${displayName}`
+                        : `Profile photo placeholder for ${displayName}`
+                    }>
+                    {ready ? initialsFromName(displayName) : "…"}
+                  </AvatarFallback>
+                </Avatar>
+                <button
+                  type="button"
+                  aria-label="Change photo"
+                  disabled={uploading}
+                  className="absolute -bottom-0.5 -right-0.5 flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-soft disabled:opacity-60"
+                  onClick={() => fileInputRef.current?.click()}>
+                  <Camera className="size-3.5" aria-hidden />
+                </button>
+                {uploading ? (
+                  <div className="absolute inset-0 flex items-center justify-center rounded-full bg-background/70">
+                    <Typography variant="small">Saving…</Typography>
+                  </div>
                 ) : null}
-                <AvatarFallback
-                  className="bg-accent text-lg text-accent-foreground md:text-xl"
-                  aria-label={`Profile photo placeholder for ${displayName}`}>
-                  {ready ? initialsFromName(displayName) : "…"}
-                </AvatarFallback>
-              </Avatar>
+              </div>
               <input
                 ref={fileInputRef}
                 type="file"
