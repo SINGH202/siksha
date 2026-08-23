@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRef } from "react";
 import {
   BadgeCheck,
   HelpCircle,
@@ -18,12 +19,13 @@ import { AppHeader } from "@/components/layout/app-header";
 import { PageMain } from "@/components/layout/page-main";
 import { SectionHeader } from "@/components/layout/section-header";
 import { Typography } from "@/components/typography";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { initialsFromName } from "@/hooks/use-account";
-import { useAuth } from "@/hooks/use-auth";
+import { toastApiError, useAuth } from "@/hooks/use-auth";
 import { useProfile } from "@/hooks/use-profile";
+import { useTeacherPhoto } from "@/hooks/use-teacher-photo";
 import { useTeacherReviews } from "@/hooks/use-teacher-reviews";
 import { formatActivityTime } from "@/lib/api/mappers";
 import { isTeacherProfileMe } from "@/lib/api/types";
@@ -51,15 +53,19 @@ function ReviewStars({ rating }: { rating: number }) {
 }
 
 export default function TeacherProfilePage() {
-  const { data, loading } = useProfile();
+  const { data, loading, reload } = useProfile();
+  const { uploading, uploadPhoto, removePhoto } = useTeacherPhoto(reload);
   const { user, logout } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const {
     items: reviews,
     loading: reviewsLoading,
     error: reviewsError,
   } = useTeacherReviews(user?.id);
-  const profile =
-    data && isTeacherProfileMe(data) ? data.profile : null;
+  const profile = data && isTeacherProfileMe(data) ? data.profile : null;
+  const photoUrl =
+    data && isTeacherProfileMe(data) ? data.photoUrl : null;
+  const hasPhoto = Boolean(profile?.photoKey || photoUrl);
   const ready = !loading;
   const displayName = profile?.name || "Teacher";
   const classes = profile?.classes ?? [];
@@ -75,6 +81,27 @@ export default function TeacherProfilePage() {
     : localities.join(", ") || "Add areas";
   const verified = profile?.verificationStatus === "verified";
 
+  async function handlePhotoChange(file: File | undefined) {
+    if (!file) return;
+    try {
+      await uploadPhoto(file);
+    } catch (err) {
+      toastApiError(err, "Could not update photo");
+    } finally {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  }
+
+  async function handleRemovePhoto() {
+    try {
+      await removePhoto();
+    } catch (err) {
+      toastApiError(err, "Could not remove photo");
+    }
+  }
+
   return (
     <>
       <AppHeader title="My profile" showBrand={false} />
@@ -83,16 +110,55 @@ export default function TeacherProfilePage() {
           <Card className="gap-4 p-5 text-center md:p-6 lg:text-left">
             <div className="flex flex-col items-center gap-3 lg:items-start">
               <Avatar className="size-20 md:size-24">
+                {photoUrl ? (
+                  <AvatarImage src={photoUrl} alt="" />
+                ) : null}
                 <AvatarFallback
                   className="bg-accent text-lg text-accent-foreground md:text-xl"
-                  aria-label={`Profile photo placeholder for ${displayName}`}
-                >
+                  aria-label={`Profile photo placeholder for ${displayName}`}>
                   {ready ? initialsFromName(displayName) : "…"}
                 </AvatarFallback>
               </Avatar>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="sr-only"
+                disabled={uploading}
+                onChange={(event) => {
+                  void handlePhotoChange(event.target.files?.[0]);
+                }}
+              />
+              <div className="flex flex-wrap items-center justify-center gap-2 lg:justify-start">
+                <Button
+                  type="button"
+                  className="h-9 rounded-xl"
+                  disabled={uploading}
+                  onClick={() => fileInputRef.current?.click()}>
+                  <Typography
+                    variant="button"
+                    className="text-primary-foreground">
+                    Change photo
+                  </Typography>
+                </Button>
+                {hasPhoto ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-9 rounded-xl"
+                    disabled={uploading}
+                    onClick={() => {
+                      void handleRemovePhoto();
+                    }}>
+                    <Typography variant="button">Remove photo</Typography>
+                  </Button>
+                ) : null}
+              </div>
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center justify-center gap-2 lg:justify-start">
-                  <Typography variant="h2" className="text-xl tracking-tight md:text-2xl">
+                  <Typography
+                    variant="h2"
+                    className="text-xl tracking-tight md:text-2xl">
                     {ready ? displayName : "Loading…"}
                   </Typography>
                   {verified ? <VerifiedBadge /> : null}
@@ -126,8 +192,7 @@ export default function TeacherProfilePage() {
             </div>
             <Link
               href="/teacher/profile/edit"
-              className={cn(buttonVariants(), "h-11 w-full rounded-xl")}
-            >
+              className={cn(buttonVariants(), "h-11 w-full rounded-xl")}>
               <Pencil className="size-4" aria-hidden />
               <Typography variant="button" className="text-primary-foreground">
                 Edit teaching profile
@@ -137,8 +202,7 @@ export default function TeacherProfilePage() {
               type="button"
               variant="outline"
               className="h-11 w-full rounded-xl"
-              onClick={() => logout()}
-            >
+              onClick={() => logout()}>
               <LogOut className="size-4" aria-hidden />
               <Typography variant="button">Sign out</Typography>
             </Button>
@@ -152,7 +216,9 @@ export default function TeacherProfilePage() {
                     <BadgeCheck className="size-5" aria-hidden />
                   </span>
                   <div>
-                    <Typography variant="h3" className="text-sm tracking-tight md:text-base">
+                    <Typography
+                      variant="h3"
+                      className="text-sm tracking-tight md:text-base">
                       Verification center
                     </Typography>
                     <Typography variant="muted" className="text-sm">
@@ -172,7 +238,9 @@ export default function TeacherProfilePage() {
                     <IdCard className="size-5" aria-hidden />
                   </span>
                   <div>
-                    <Typography variant="h3" className="text-sm tracking-tight md:text-base">
+                    <Typography
+                      variant="h3"
+                      className="text-sm tracking-tight md:text-base">
                       Teaching profile
                     </Typography>
                     <Typography variant="muted" className="text-sm">
@@ -202,19 +270,24 @@ export default function TeacherProfilePage() {
                   {reviews.map((review) => (
                     <li
                       key={review.id}
-                      className="space-y-2 rounded-2xl bg-muted/40 p-3"
-                    >
+                      className="space-y-2 rounded-2xl bg-muted/40 p-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <Typography variant="h3" className="text-sm tracking-tight">
+                        <Typography
+                          variant="h3"
+                          className="text-sm tracking-tight">
                           {review.parentName?.trim() || "Parent"}
                         </Typography>
-                        <Typography variant="small" className="text-muted-foreground">
+                        <Typography
+                          variant="small"
+                          className="text-muted-foreground">
                           {formatActivityTime(review.createdAt)}
                         </Typography>
                       </div>
                       <ReviewStars rating={review.rating} />
                       {review.body ? (
-                        <Typography variant="bodySmall">{review.body}</Typography>
+                        <Typography variant="bodySmall">
+                          {review.body}
+                        </Typography>
                       ) : null}
                     </li>
                   ))}
@@ -227,8 +300,7 @@ export default function TeacherProfilePage() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <Link
                   href="/teacher/settings"
-                  className="rounded-2xl bg-muted/40 p-3 transition hover:bg-muted/60"
-                >
+                  className="rounded-2xl bg-muted/40 p-3 transition hover:bg-muted/60">
                   <div className="mb-1 flex items-center gap-2">
                     <span className="flex size-8 items-center justify-center rounded-2xl bg-card text-primary shadow-soft">
                       <Settings2 className="size-4" aria-hidden />
@@ -243,8 +315,7 @@ export default function TeacherProfilePage() {
                 </Link>
                 <Link
                   href="/teacher/help"
-                  className="rounded-2xl bg-muted/40 p-3 transition hover:bg-muted/60"
-                >
+                  className="rounded-2xl bg-muted/40 p-3 transition hover:bg-muted/60">
                   <div className="mb-1 flex items-center gap-2">
                     <span className="flex size-8 items-center justify-center rounded-2xl bg-card text-primary shadow-soft">
                       <HelpCircle className="size-4" aria-hidden />
@@ -259,8 +330,7 @@ export default function TeacherProfilePage() {
                 </Link>
                 <Link
                   href="/privacy"
-                  className="rounded-2xl bg-muted/40 p-3 transition hover:bg-muted/60 sm:col-span-2"
-                >
+                  className="rounded-2xl bg-muted/40 p-3 transition hover:bg-muted/60 sm:col-span-2">
                   <div className="mb-1 flex items-center gap-2">
                     <span className="flex size-8 items-center justify-center rounded-2xl bg-card text-primary shadow-soft">
                       <Shield className="size-4" aria-hidden />
