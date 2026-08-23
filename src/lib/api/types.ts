@@ -110,6 +110,45 @@ export type UpdateTeacherProfileInput = {
   feeMax?: number;
 };
 
+export type UploadPurpose = "teacher_photo" | "teacher_id";
+
+export type PresignUploadInput = {
+  purpose: UploadPurpose;
+  contentType: string;
+  contentLength: number;
+};
+
+export type PresignUploadResult = {
+  uploadUrl: string;
+  objectKey: string;
+  contentType: string;
+};
+
+export type VerificationStatus = TeacherProfile["verificationStatus"];
+
+export type VerificationSubmissionSummary = {
+  id: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+  reviewedAt: string | null;
+};
+
+export type VerificationMe = {
+  verificationStatus: VerificationStatus;
+  submission: VerificationSubmissionSummary | null;
+};
+
+export type VerificationQueueItem = {
+  id: string;
+  teacherId: string;
+  teacherName: string | null;
+  subjects: string[];
+  classes: string[];
+  verificationStatus: VerificationStatus;
+  submissionStatus: "pending" | "approved" | "rejected";
+  createdAt: string;
+};
+
 export type RequirementMode = "home" | "online";
 export type RequirementStatus = "open" | "applicants" | "hired" | "closed";
 export type ClassLabel = "8" | "9" | "10" | "11" | "12";

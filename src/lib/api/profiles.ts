@@ -24,3 +24,20 @@ export function updateTeacherProfile(input: UpdateTeacherProfileInput) {
     { method: "PUT", body: input }
   );
 }
+
+export function confirmTeacherPhoto(objectKey: string) {
+  return apiRequest<{ profile: TeacherProfile }>("/profiles/teacher/photo", {
+    method: "PUT",
+    body: { objectKey },
+  });
+}
+
+export function removeTeacherPhoto() {
+  return apiRequest<{ profile: TeacherProfile }>("/profiles/teacher/photo", {
+    method: "DELETE",
+  });
+}
+
+export function getTeacherPhotoUrl() {
+  return apiRequest<{ photoUrl: string }>("/profiles/teacher/photo-url");
+}
