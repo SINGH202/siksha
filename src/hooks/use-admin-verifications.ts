@@ -12,23 +12,28 @@ export function useAdminVerifications() {
   const [error, setError] = useState<string | null>(null);
   const [reviewingId, setReviewingId] = useState<string | null>(null);
 
-  const reload = useCallback(async (signal?: AbortSignal) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const next = await adminVerificationsApi.listAdminVerifications(
-        "pending",
-        signal
-      );
-      if (signal?.aborted) return;
-      setItems(next);
-    } catch (err) {
-      if (signal?.aborted) return;
-      setError(getErrorMessage(err, "Could not load verification queue"));
-    } finally {
-      if (!signal?.aborted) setLoading(false);
-    }
-  }, []);
+  const reload = useCallback(
+    async (signal?: AbortSignal, options?: { quiet?: boolean }) => {
+      if (!options?.quiet) {
+        setLoading(true);
+      }
+      setError(null);
+      try {
+        const next = await adminVerificationsApi.listAdminVerifications(
+          "pending",
+          signal
+        );
+        if (signal?.aborted) return;
+        setItems(next);
+      } catch (err) {
+        if (signal?.aborted) return;
+        setError(getErrorMessage(err, "Could not load verification queue"));
+      } finally {
+        if (!signal?.aborted) setLoading(false);
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     const controller = new AbortController();
@@ -52,7 +57,7 @@ export function useAdminVerifications() {
       try {
         await adminVerificationsApi.approveVerification(id);
         setItems((current) => current.filter((item) => item.id !== id));
-        await reload();
+        await reload(undefined, { quiet: true });
       } finally {
         setReviewingId(null);
       }
@@ -66,7 +71,7 @@ export function useAdminVerifications() {
       try {
         await adminVerificationsApi.rejectVerification(id, reason);
         setItems((current) => current.filter((item) => item.id !== id));
-        await reload();
+        await reload(undefined, { quiet: true });
       } finally {
         setReviewingId(null);
       }
